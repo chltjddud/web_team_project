@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINIGAME 회원가입</title>
+<style>
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('../bgimg/하늘배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PixelFont', monospace;
+        }
+
+        .register-window {
+            width: 600px;
+            height: 560px; 
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            color: #3a3a3a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .title-bar {
+            background-color: #3a3a3a;
+            color: white;
+            font-size: 24px;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #5a5a5a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px; 
+        }
+
+        .input-field-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0; 
+            width: 80%;
+            justify-content: space-between; 
+            max-width: 500px;
+        }
+
+        .input-label {
+            font-size: 16px;
+            color: white;
+            width: 120px; 
+            flex-shrink: 0;
+            text-align: left; 
+        }
+
+        .check-group {
+            display: flex;
+            align-items: center;
+            width: calc(100% - 90px); 
+        }
+        
+        .input-field-container:not(:has(.check-group)) .input-field {
+            width: calc(100% - 140px); 
+        }
+
+        .input-field {
+            flex-grow: 1; 
+            height: 40px;
+            padding: 0 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fff;
+            box-sizing: border-box; 
+        }
+
+        .check-group .input-field {
+            margin-right: 10px;
+        }
+
+        .check-button {
+     	    width: 80px;
+            height: 40px; 
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            padding: 0;
+            cursor: pointer;
+            flex-shrink: 0; 
+            text-shadow: 2px 2px 0 #218838;
+
+            box-shadow: 
+                -4px -4px 0 #7dd891 inset, 
+                 4px  4px 0 #218838 inset;
+            font-family: 'PixelFont', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .check-button:hover {
+            background-color: #218838;
+        }
+
+        .next-button {
+            width: 150px; 
+            height: 50px; 
+            margin: 20px 0 15px;
+            background-color: #d89617;
+            color: white;
+            font-size: 24px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #8b4513;
+            box-shadow: 
+                -4px -4px 0 #ffe082 inset, 
+                 4px  4px 0 #8b4513 inset;
+            line-height: 42px; 
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PixelFont', monospace; 
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+
+        /* ⭐️ 통합 메시지 영역 스타일 (수정됨: min-height, opacity) ⭐️ */
+        #responseMessage {
+            opacity: 0; /* 숨김 (공간 유지) */
+            height: auto; 
+            min-height: 40px; /* 최소 높이 확보로 버튼 밀림 방지 */
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px; 
+            width: 80%;
+            max-width: 500px;
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'PixelFont', monospace;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: opacity 0.3s ease-in-out; /* 부드러운 전환 효과 추가 */
+        }
+
+        /* 상태별 배경색 클래스 (수정됨: opacity 사용) */
+        .bg-info { background-color: #17a2b8; opacity: 1; }
+        .bg-pending { background-color: #ffc107; color: black; opacity: 1; } 
+        .bg-success { background-color: #28a745; opacity: 1; } 
+        .bg-error { background-color: #dc3545; opacity: 1; } 
+
+        /* global-status-msg을 responseMessage로 통합하여 사용합니다. */
+        #global-status-msg {
+            display: none; 
+        }
+
+    </style>
+
+    <script>
+    // ⭐️ 전역 인증 상태 플래그 ⭐️
+    let isIdChecked = false;
+    let isNicknameChecked = false;
+    
+    // 메시지 표시 함수 (수정됨: opacity 사용)
+    function showMessage(element, text, className) {
+        element.textContent = text;
+        element.className = className; 
+        element.style.opacity = 1; // 보이게 함
+    }
+    
+    // ID 또는 닉네임 입력이 변경되면 플래그 초기화 및 메시지 숨기기 (수정됨: opacity 사용)
+    function resetCheckStatus(type) {
+        const responseMessageArea = document.getElementById('responseMessage');
+        if (type === 'id') {
+            isIdChecked = false;
+        } else if (type === 'nickname') {
+            isNicknameChecked = false;
+        }
+        
+        responseMessageArea.style.opacity = 0; // 숨김
+        responseMessageArea.textContent = '';
+        responseMessageArea.className = '';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const nextButton = document.querySelector('.next-button');
+        const responseMessageArea = document.getElementById('responseMessage'); // 통합 메시지 영역
+        
+        // 입력 필드 정의
+        const userIdInput = document.getElementById('user-id');
+        const passwordInput = document.getElementById('password');
+        const passwordConfirmInput = document.getElementById('password-confirm');
+        const nicknameInput = document.getElementById('nickname');
+        
+        userIdInput.addEventListener('input', () => resetCheckStatus('id'));
+        nicknameInput.addEventListener('input', () => resetCheckStatus('nickname'));
+
+        // 1. 중복확인 버튼 클릭 시 AJAX 요청
+        document.getElementById('check-id-btn').addEventListener('click', () => checkDuplicate('id', userIdInput.value));
+        document.getElementById('check-nickname-btn').addEventListener('click', () => checkDuplicate('nickname', nicknameInput.value));
+
+        function checkDuplicate(type, value) {
+            if (!value.trim()) {
+                showMessage(responseMessageArea, `${type === 'id' ? 'ID' : '닉네임'}를 입력하세요.`, 'bg-error');
+                return;
+            }
+            
+            showMessage(responseMessageArea, `사용 가능한지 확인 중입니다...`, 'bg-pending');
+
+            // ⚠️ Context Path 확인 필수! ⚠️
+            fetch('/team_project/checkDuplicate', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `type=${type}&value=${encodeURIComponent(value)}`
+            })
+            .then(response => response.text())
+            .then(text => {
+                const fieldName = type === 'id' ? 'ID' : '닉네임';
+
+                if (text === "available") {
+                    showMessage(responseMessageArea, `사용 가능한 ${fieldName}입니다!`, 'bg-success');
+                    if (type === 'id') isIdChecked = true;
+                    else if (type === 'nickname') isNicknameChecked = true;
+                    
+                } else if (text === "duplicate") {
+                    showMessage(responseMessageArea, `이미 있는 ${fieldName}입니다.`, 'bg-error');
+                    if (type === 'id') isIdChecked = false;
+                    else if (type === 'nickname') isNicknameChecked = false;
+
+                } else {
+                    showMessage(responseMessageArea, `서버 오류: ${text}`, 'bg-error');
+                    if (type === 'id') isIdChecked = false;
+                    else if (type === 'nickname') isIdChecked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Duplicate Check error:', error);
+                showMessage(responseMessageArea, '네트워크 오류가 발생했습니다.', 'bg-error');
+                if (type === 'id') isIdChecked = false;
+                else if (type === 'nickname') isIdChecked = false;
+            });
+        }
+        
+        // 2. NEXT (가입완료) 버튼 클릭 시 동작 (JSON 응답 처리 안정화 로직)
+        nextButton.addEventListener('click', function() {
+            const userId = userIdInput.value; 
+            const password = passwordInput.value;
+            const passwordConfirm = passwordConfirmInput.value;
+            const nickname = nicknameInput.value; 
+
+            if (!userId || !password || !passwordConfirm || !nickname) {
+                showMessage(responseMessageArea, "모든 필드를 빠짐없이 입력하세요.", 'bg-error');
+                return;
+            }
+            if (password !== passwordConfirm) {
+                showMessage(responseMessageArea, "비밀번호와 비밀번호 확인이 일치하지 않습니다.", 'bg-error');
+                return;
+            }
+            if (!isIdChecked) {
+                showMessage(responseMessageArea, "🚨 ID 중복 확인을 완료하고 사용 가능 상태여야 합니다.", 'bg-error');
+                return;
+            }
+            if (!isNicknameChecked) {
+                showMessage(responseMessageArea, "🚨 닉네임 중복 확인을 완료하고 사용 가능 상태여야 합니다.", 'bg-error');
+                return;
+            }
+            
+            showMessage(responseMessageArea, "회원가입 요청 중...", 'bg-pending');
+
+            const formData = new URLSearchParams();
+            formData.append('user-id', userId);
+            formData.append('password', password);
+            formData.append('nickname', nickname);
+            
+            // 최종 가입 로직: RegisterUserServlet 호출
+            fetch('/team_project/registerUser', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            // ⭐️ JSON 파싱 안정화 로직 적용 ⭐️
+            .then(response => {
+                return response.text().then(text => {
+                    try {
+                        // 텍스트를 JSON으로 파싱 시도
+                        return JSON.parse(text);
+                    } catch (e) {
+                        // 파싱 실패 시, 오류 메시지를 포함하여 에러 발생
+                        if (!response.ok) {
+                            throw new Error(`서버 오류 (${response.status}): ${text.substring(0, 50)}...`);
+                        }
+                        throw new Error("서버 응답 형식 오류: 200 OK이지만 JSON 파싱 실패.");
+                    }
+                });
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    showMessage(responseMessageArea, data.message + ' 잠시 후 메인 페이지로 이동합니다.', 'bg-success');
+                    setTimeout(() => {
+
+                    	window.location.href = "../main/main_page.html"; 
+                        
+                    }, 1000); 
+
+                } else {
+                    // 서버 측에서 보낸 오류 메시지 (data.status === 'error')
+                    const errorMessage = data.message || "알 수 없는 서버 오류가 발생했습니다.";
+                    showMessage(responseMessageArea, `회원가입 실패: ${errorMessage}`, 'bg-error');
+                    console.error("Server Error Detail:", errorMessage);
+                }
+            })
+            .catch(error => {
+                // 네트워크 오류, JSON 파싱 오류 등 모든 예외 처리
+                console.error('Registration Fetch error:', error);
+                showMessage(responseMessageArea, `치명적인 통신 오류: ${error.message}`, 'bg-error');
+            });
+        });
+    });
+</script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="register-window">
+            <div class="title-bar">회원가입</div>
+
+            <div class="content-area">
+                <div class="input-field-container">
+                    <label class="input-label" for="user-id">ID</label>
+                    <div class="check-group">
+                        <input class="input-field" type="text" id="user-id" placeholder="ID를 입력하세요" required>
+                        <button class="check-button" id="check-id-btn">중복확인</button>
+                    </div>
+                </div>
+                <div class="input-field-container">
+                    <label class="input-label" for="password">비밀번호</label>
+                    <input class="input-field" type="password" id="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                
+                <div class="input-field-container">
+                    <label class="input-label" for="password-confirm">비밀번호 확인</label>
+                    <input class="input-field" type="password" id="password-confirm" placeholder="비밀번호를 다시 한 번 입력하세요" required>
+                </div>
+                
+                <div class="input-field-container">
+                    <label class="input-label" for="nickname">닉네임</label>
+                    <div class="check-group">
+                        <input class="input-field" type="text" id="nickname" placeholder="닉네임을 입력하세요" required>
+                        <button class="check-button" id="check-nickname-btn">중복확인</button>
+                    </div>
+                </div>
+                <div id="responseMessage"></div>
+                
+                <button class="next-button">가입완료</button>
+
+                <div id="global-status-msg" class="msg-status"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

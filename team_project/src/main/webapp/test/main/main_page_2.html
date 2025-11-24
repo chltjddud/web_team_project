@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINI GAME 로그인</title>
+    <style>
+        /* 1. 폰트 등록: DungGeunMo.ttf 파일 적용 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype'); /* 폰트 파일 경로 지정 */
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 배경 이미지 설정 */
+            background-image: url('../bgimg/game_배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat; /* 이미지가 너무 작을 경우 반복되지 않도록 설정 */
+    		background-size: 60% auto;
+    		background-color: #87CEEB;
+        }
+
+        .container {
+            position: relative;
+            /* 배경 이미지와 동일한 비율로 조정 (화면 중앙에 내용 정렬) */
+            width: 800px; 
+            height: 600px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            padding-top: 50px; 
+        }
+
+        /* 2. MINI GAME 제목 이미지 스타일 */
+        .game-title-image {
+            width: 400px; /* 이미지 파일의 실제 크기에 맞게 조정 */
+            height: auto; 
+            margin-bottom: 50px; 
+            z-index: 10;
+        }
+
+        /* 로그인 폼 컨테이너 */
+        .login-box {
+            position: relative;
+            width: 400px;
+            padding: 20px;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* ID/PASSWORD 라벨 스타일 */
+        .input-label {
+            width: 100px;
+            height: 30px;
+            background-color: #8b4513; 
+            color: white;
+            font-family: 'PixelFont', monospace; /* 폰트 적용 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #555;
+            border-right: none;
+            font-size: 14px;
+            box-shadow: 
+                -2px -2px 0 #d89617 inset, 
+                 2px  2px 0 #555 inset; 
+        }
+
+        /* 3. 입력 필드 스타일 및 폰트 적용 */
+        .input-field {
+            width: 200px;
+            height: 30px;
+            padding: 0 10px;
+            border: 2px solid #555;
+            border-left: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            font-family: 'PixelFont', monospace; /* 폰트 적용 */
+            font-size: 16px;
+            box-shadow: 
+                -2px -2px 0 #aaa inset, 
+                 2px  2px 0 #fff inset; 
+        }
+
+        .input-field::placeholder {
+            color: #777;
+        }
+
+		       /* 4. LOGIN 버튼 스타일 및 폰트 적용 */
+		.login-button {
+		    width: 90px;
+		    height: 80px;
+		    /* 👇 이 두 속성을 수정합니다. */
+		    margin-left: -5px; /* 가로 간격을 없애 입력 필드에 붙입니다. */
+		    position: relative;
+   		 	top: -8px; 
+		    /* ---------------------------------- */
+		    background-color: #d89617; 
+		    color: white;
+		    font-family: 'PixelFont', monospace; 
+		    font-size: 20px;
+		    border: 4px solid #8b4513; 
+		    cursor: pointer;
+		    text-shadow: 2px 2px 0 #8b4513;
+		    box-shadow: 
+		        -4px -4px 0 #ffe082 inset, 
+		         4px  4px 0 #8b4513 inset; 
+		    line-height: 1;
+		    padding-top: 5px;
+		    box-sizing: border-box;
+		    flex-shrink: 0;
+		}
+
+        .login-button:hover {
+            background-color: #e0ac42;
+        }
+
+        /* 5. 보조 링크 스타일 및 폰트 적용 */
+        .aux-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            width: 380px; 
+            font-size: 14px;
+        }
+
+        .aux-links a {
+            color: #fff; 
+            text-decoration: none;
+            margin: 0 5px;
+            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 적용 */
+            text-shadow: 1px 1px 0 #333;
+        }
+
+        .aux-links a:hover {
+            color: #d89617; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img 
+            src="../bgimg/minigame_배경X.png" 
+            alt="MINI GAME" 
+            class="game-title-image"
+        >
+        
+        <div class="login-box">
+            <div style="display: flex; justify-content: center; align-items: flex-end;">
+            </div> 
+        </div>
+    
+</div>
+</body>
+</html>

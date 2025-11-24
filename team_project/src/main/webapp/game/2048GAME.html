@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 게임</title>
+    <style>
+        /* -------------------------------------------
+        * 1. CSS (스타일 및 타일 색상)
+        * ------------------------------------------- */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-image: url('2048배경.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+        }
+
+        .game-logo {
+            width: 200px;
+            height: auto;
+            margin-bottom: 5px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .score-container {
+            font-size: 1.5em;
+            color: #f9f6f2; 
+            margin-bottom: 20px;
+            background-color: #776e65; 
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        #game-board {
+            /* 🚩 [수정] Grid Container 유지. 타일이 셀 위에 겹치도록 설정 */
+            width: 410px; 
+            height: 410px;
+            background-color: rgba(187, 173, 160, 0.9); 
+            border-radius: 10px;
+            padding: 10px; 
+            display: grid;
+            grid-template-columns: repeat(4, 90px);
+            grid-template-rows: repeat(4, 90px);
+            gap: 10px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            /* Grid는 셀을 배치하고, 타일은 Absolute로 셀 위에 정확히 위치시킴 */
+        }
+
+        .cell {
+            background-color: rgba(238, 228, 218, 0.5); 
+            border-radius: 3px;
+        }
+
+        /* -------------------------------------------
+        * 타일 스타일 (Grid 위치를 기반으로 absolute 위치 설정)
+        * ------------------------------------------- */
+        .tile {
+            /* 🚩 [수정] absolute 유지, 크기는 90px 고정 */
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            font-weight: bold;
+            /* 타일 이동 애니메이션 개선 */
+            transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, left 0.1s ease-in-out;
+            box-sizing: border-box;
+            line-height: 1;
+        }
+
+        /* 타일 위치 매핑 (JavaScript에서 `r`과 `c`를 사용하여 계산함)
+           CSS가 아닌 JS에서 픽셀을 직접 계산하여 top/left를 설정하는 방식이 
+           Grid 레이아웃과의 충돌을 줄이는 가장 안정적인 방법입니다.
+           JavaScript의 위치 계산 로직을 다시 한 번 확인합니다.
+        */
+        
+        /* 폰트 및 배경 색상은 동일 */
+        .t-2, .t-4 { color: #776e65; }
+        .t-8, .t-16, .t-32, .t-64, .t-128, .t-256, .t-512, .t-1024, .t-2048 { color: #f9f6f2; }
+        .t-2 { background-color: #eee4da; }
+        .t-4 { background-color: #ede0c8; }
+        .t-8 { background-color: #f2b179; font-size: 2em; }
+        .t-16 { background-color: #f59563; font-size: 2em; }
+        .t-32 { background-color: #f67c5f; font-size: 2em; }
+        .t-64 { background-color: #f65e3e; font-size: 2em; }
+        .t-128 { background-color: #edcf72; font-size: 1.8em; }
+        .t-256 { background-color: #edcc61; font-size: 1.8em; }
+        .t-512 { background-color: #edc850; font-size: 1.8em; }
+        .t-1024 { background-color: #edc53f; font-size: 1.5em; }
+        .t-2048 { background-color: #edc22e; font-size: 1.5em; }
+        .t-4096, .t-8192, .t-16384 { background-color: #3c3a32; color: #f9f6f2; font-size: 1.2em; }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pop-in {
+            animation: pop 0.2s ease-in-out;
+        }
+
+        #game-status {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9); 
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #game-status h2 {
+            font-size: 3em;
+            color: #776e65;
+        }
+
+        #game-status button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <img src="2048배경X.png" alt="2048 Game Logo" class="game-logo">
+
+    <div class="score-container">
+        Score: <span id="score">0</span>
+    </div>
+
+    <div id="game-board">
+        <div id="game-status">
+            <h2 id="status-message"></h2>
+            <button id="restart-button">다시 시작</button>
+        </div>
+    </div>
+
+    <script>
+        /* -------------------------------------------
+        * 2. JavaScript (게임 로직) - 위치 계산 로직 재검토 및 수정
+        * ------------------------------------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+            const boardElement = document.getElementById('game-board');
+            const scoreDisplay = document.getElementById('score');
+            const statusElement = document.getElementById('game-status');
+            const statusMessage = document.getElementById('status-message');
+            const restartButton = document.getElementById('restart-button');
+            const gridSize = 4;
+            let board = [];
+            let score = 0;
+            const tileSize = 90; 
+            const gap = 10; 
+            let isMoving = false; 
+
+            // 1. 초기화 함수
+            function setGame() {
+                board = Array(gridSize).fill(0).map(() => Array(gridSize).fill(0));
+                score = 0;
+                scoreDisplay.textContent = 0;
+                
+                // 기존 타일 제거 및 셀 생성
+                boardElement.querySelectorAll('.cell, .tile').forEach(el => el.remove());
+                
+                // 배경 셀만 다시 생성
+                for (let r = 0; r < gridSize; r++) {
+                    for (let c = 0; c < gridSize; c++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.id = `cell-${r}-${c}`;
+                        boardElement.prepend(cell); 
+                    }
+                }
+                
+                statusElement.style.display = 'none';
+                statusElement.classList.remove('won');
+
+                addTwoOrFour();
+                addTwoOrFour();
+                updateTileUI();
+            }
+
+            // 2. 타일 생성 함수 (2 또는 4)
+            function addTwoOrFour() {
+                if (isFull()) return null;
+
+                let r, c;
+                do {
+                    r = Math.floor(Math.random() * gridSize);
+                    c = Math.floor(Math.random() * gridSize);
+                } while (board[r][c] !== 0);
+
+                board[r][c] = (Math.random() < 0.9) ? 2 : 4;
+                return { r, c }; 
+            }
+            
+            // 3. UI 업데이트 함수
+            function updateTileUI(newTilePos = null) {
+                boardElement.querySelectorAll('.tile').forEach(tile => tile.remove());
+                
+                for (let r = 0; r < gridSize; r++) {
+                    for (let c = 0; c < gridSize; c++) {
+                        const val = board[r][c];
+                        if (val !== 0) {
+                            const tile = document.createElement('div');
+                            tile.textContent = val;
+                            tile.classList.add('tile', `t-${val}`);
+                            
+                            // 🚩 [최종 수정] 타일 위치 계산 로직
+                            // Grid의 padding: 10px, gap: 10px, cell: 90px
+                            // top/left = 갭(10) + (행/열 인덱스 * (타일 크기 + 갭))
+                            const top = gap + r * (tileSize + gap);
+                            const left = gap + c * (tileSize + gap);
+
+                            tile.style.top = `${top}px`;
+                            tile.style.left = `${left}px`;
+
+                            if (newTilePos && newTilePos.r === r && newTilePos.c === c) {
+                                tile.classList.add('pop-in');
+                            }
+                            
+                            boardElement.appendChild(tile);
+                        }
+                    }
+                }
+            }
+            
+            // 배열 압축 및 병합 로직 (변경 없음)
+            function filterZero(row) {
+                return row.filter(num => num !== 0);
+            }
+
+            function slideLeft(row) {
+                let filteredRow = filterZero(row);
+                let zeros = Array(gridSize - filteredRow.length).fill(0);
+                return filteredRow.concat(zeros);
+            }
+
+            function combineLeft(row) {
+                row = slideLeft(row);
+                
+                for (let i = 0; i < gridSize - 1; i++) {
+                    if (row[i] === row[i + 1] && row[i] !== 0) {
+                        row[i] *= 2;
+                        score += row[i];
+                        row[i + 1] = 0;
+                    }
+                }
+                return slideLeft(row);
+            }
+
+            // 7. 메인 로직 처리 (특정 방향으로 이동)
+            function move(direction) {
+                if (isMoving || isGameOver() === 'lose') return;
+                
+                isMoving = true;
+                let boardChanged = false;
+                let newBoard = board.map(arr => [...arr]);
+
+                for (let i = 0; i < gridSize; i++) {
+                    let rowOrCol = [];
+                    
+                    if (direction === 'left' || direction === 'right') {
+                        rowOrCol = newBoard[i];
+                    } else { 
+                        for (let j = 0; j < gridSize; j++) {
+                            rowOrCol.push(newBoard[j][i]);
+                        }
+                    }
+
+                    let originalRowOrCol = [...rowOrCol];
+                    let newRowOrCol;
+
+                    if (direction === 'left' || direction === 'up') {
+                        newRowOrCol = combineLeft(rowOrCol);
+                    } else { 
+                        rowOrCol.reverse();
+                        newRowOrCol = combineLeft(rowOrCol);
+                        newRowOrCol.reverse();
+                    }
+
+                    if (originalRowOrCol.join(',') !== newRowOrCol.join(',')) {
+                        boardChanged = true;
+                    }
+
+                    if (direction === 'left' || direction === 'right') {
+                        newBoard[i] = newRowOrCol;
+                    } else { 
+                        for (let j = 0; j < gridSize; j++) {
+                            newBoard[j][i] = newRowOrCol[j];
+                        }
+                    }
+                }
+                
+                if (boardChanged) {
+                    board = newBoard;
+                    const newTilePos = addTwoOrFour(); 
+                    
+                    updateTileUI(newTilePos);
+                    scoreDisplay.textContent = score;
+                    checkGameStatus();
+                }
+                
+                setTimeout(() => {
+                    isMoving = false;
+                }, 100); 
+            }
+
+            // 8. 키 입력 이벤트 처리
+            document.addEventListener('keyup', (e) => {
+                if (isMoving || statusElement.style.display === 'flex') return;
+                
+                switch (e.key) {
+                    case 'ArrowLeft':
+                    case 'a':
+                        move('left');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                        move('right');
+                        break;
+                    case 'ArrowUp':
+                    case 'w':
+                        move('up');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                        move('down');
+                        break;
+                }
+            });
+
+            // 9. 게임 상태 확인 (승리/패배)
+            function isFull() {
+                return board.every(row => row.every(val => val !== 0));
+            }
+            
+            function canMerge() {
+                for (let r = 0; r < gridSize; r++) {
+                    for (let c = 0; c < gridSize - 1; c++) {
+                        if (board[r][c] === board[r][c + 1]) return true;
+                    }
+                }
+                for (let c = 0; c < gridSize; c++) {
+                    for (let r = 0; r < gridSize - 1; r++) {
+                        if (board[r][c] === board[r + 1][c]) return true;
+                    }
+                }
+                return false;
+            }
+
+            function isGameOver() {
+                if (board.some(row => row.includes(2048))) return 'win';
+                
+                if (isFull() && !canMerge()) return 'lose';
+                
+                return false;
+            }
+            
+            function checkGameStatus() {
+                const status = isGameOver();
+                if (status === 'win') {
+                    if (!statusElement.classList.contains('won')) {
+                        statusMessage.textContent = '🎉 2048 달성! 계속 플레이하세요! 🎉';
+                        statusElement.style.display = 'flex';
+                        statusElement.classList.add('won');
+                    }
+                } else if (status === 'lose') {
+                    statusMessage.textContent = '게임 오버! 😢 최종 점수: ' + score;
+                    statusElement.style.display = 'flex';
+                }
+            }
+
+            // 10. 재시작 버튼 이벤트
+            restartButton.addEventListener('click', () => {
+                statusElement.classList.remove('won');
+                setGame();
+            });
+
+            setGame();
+        });
+    </script>
+</body>
+</html>

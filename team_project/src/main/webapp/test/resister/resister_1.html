@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINIGAME 회원가입</title>
+<style>
+        /* 폰트 등록 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 기본 레이아웃 및 배경 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('../bgimg/하늘배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PixelFont', monospace;
+        }
+
+        /* 회원가입 창 */
+        .register-window {
+            width: 600px;
+            height: 560px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            color: #3a3a3a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 타이틀 바 */
+        .title-bar {
+            background-color: #3a3a3a;
+            color: white;
+            font-size: 24px;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #5a5a5a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* 입력 필드 및 버튼 컨테이너 */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px; 
+        }
+
+        /* 라벨과 입력 필드를 묶는 컨테이너 (이름, 생년월일) */
+        .input-field-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0; 
+            width: 80%;
+            justify-content: space-between;
+            max-width: 500px;
+        }
+
+        /* 폼 태그가 .input-field-container의 역할을 하도록 수정 */
+        /* 이메일 전송 폼과 인증 확인 폼에 직접 적용하여 한 줄 정렬 */
+        #sendCodeForm, #verifyCodeForm {
+            display: flex;
+            align-items: center;
+            margin: 15px 0; 
+            width: 80%; 
+            max-width: 500px;
+            gap: 0px;
+            justify-content: space-between;
+        }
+        
+        .input-label {
+            font-size: 16px;
+            color: white;
+            width: 120px;
+            flex-shrink: 0;
+            text-align: left; 
+        }
+
+        /* 일반 입력 필드(이름, 생년월일)의 너비: 라벨(120px) 제외 나머지 공간 */
+        .input-field-container:not(:has(.email-input-group)):not(:has(.auth-input-group)) .input-field {
+            width: calc(100% - 120px); 
+        }
+        
+        /* 이메일 그룹 및 인증 그룹의 너비 (Flex item으로 남은 공간을 차지하도록 flex-grow: 1 적용) */
+        .email-input-group, .auth-input-group, .code-input-group {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .input-field {
+            flex-grow: 1; 
+            height: 40px;
+            padding: 0 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fff;
+            box-sizing: border-box; 
+            display: flex;
+        }
+
+        /* ======== 버튼 스타일 ======== */
+
+        /* 인증번호 보내기 버튼과 확인 버튼의 너비를 고정하고, 패딩을 조정 */
+        .send-auth-button, .check-auth-button, .verify-button {
+            width: 100px;
+            height: 40px; 
+            background-color: #28a745;
+            color: white;
+            padding: 0;
+            font-size: 14px; 
+            cursor: pointer;
+            flex-shrink: 0; 
+            text-shadow: 2px 2px 0 #218838;
+            box-shadow: 
+                -4px -4px 0 #7dd891 inset, 
+                 4px  4px 0 #218838 inset;
+            font-family: 'PixelFont', monospace;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .send-auth-button:hover,
+        .check-auth-button:hover,
+        .verify-button:hover {
+            background-color: #218838;
+        }
+
+        /* NEXT 버튼 */
+        .next-button {
+            width: 150px; 
+            height: 50px; 
+            margin: 40px 0 15px;
+            background-color: #d89617;
+            color: white;
+            font-size: 24px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #8b4513;
+            box-shadow: 
+                -4px -4px 0 #ffe082 inset, 
+                 4px  4px 0 #8b4513 inset;
+            line-height: 42px; 
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PixelFont', monospace; 
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+        
+        /* 서버 응답 메시지 스타일 */
+        #responseMessage {
+            visibility: hidden; 
+            width: 80%;
+            max-width: 500px;
+            min-height: 16px;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'PixelFont', monospace;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* 상태별 배경색 클래스 */
+        .bg-info { background-color: #17a2b8; }
+        .bg-pending { background-color: #ffc107; color: black; }
+        .bg-success { background-color: #28a745; }
+        .bg-error { background-color: #dc3545; }
+    </style>
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="register-window">
+            <div class="title-bar">회원가입</div>
+
+            <div class="content-area">
+                <div class="input-field-container">
+				    <label class="input-label" for="name">이름</label>
+				    <input class="input-field" type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+				</div>
+				
+				<div class="input-field-container">
+				    <label class="input-label" for="birthdate">생년월일</label>
+				    <input class="input-field" type="date" id="birthdate" name="birthdate" required>
+				</div>
+				
+                <form id="sendCodeForm" action="sendCode" method="POST">
+                    <label class="input-label" for="email">이메일</label>
+                    <div class="email-input-group">
+                        <input class="input-field" type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+                    </div>
+                    <button type="submit" class="send-auth-button">인증번호 전송</button>
+                </form>
+				
+				<form id="verifyCodeForm" action="verifyCode" method="POST">
+                    <label class="input-label" for="authCode">인증번호</label>
+                    <div class="code-input-group">
+                        <input class="input-field" type="text" id="authCode" name="authCode" placeholder="인증번호 6자리" required maxlength="6">
+                    </div>
+                    <button type="submit" class="check-auth-button verify-button" id="verifyBtn">인증확인</button>
+                </form>
+                
+                <div id="responseMessage"></div>
+
+                <button class="next-button" id="nextButton">NEXT</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    let isAuthOK = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const nextButton = document.getElementById('nextButton');
+        const responseDiv = document.getElementById('responseMessage');
+
+        function displayResponse(div, text, type) {
+            div.textContent = text;
+            div.style.visibility = 'visible'; 
+
+            div.classList.remove('bg-info', 'bg-pending', 'bg-success', 'bg-error'); 
+            
+            if (type === 'success') {
+                div.classList.add('bg-success');
+            } else if (type === 'error') {
+                div.classList.add('bg-error');
+            } else if (type === 'pending') {
+                div.classList.add('bg-pending');
+            } else if (type === 'hide') {
+                div.style.visibility = 'hidden'; 
+                div.textContent = '';
+                return;
+            } else {
+                div.classList.add('bg-info');
+            }
+        }
+
+        // ⭐️ 1. 이메일 인증번호 전송 폼 처리 (중복 확인 로직 추가) ⭐️
+        document.getElementById('sendCodeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                displayResponse(responseDiv, "이메일을 입력해주세요.", 'error'); 
+                return;
+            }
+
+            isAuthOK = false; 
+            displayResponse(responseDiv, '이메일 중복을 확인 중입니다...', 'pending');
+            
+            // ⚠️ Context Path 및 서블릿 경로 확인 필수 ⚠️
+            const checkDuplicatePath = "/team_project/checkDuplicate"; 
+
+            // 이메일 중복 확인 Fetch 요청
+            fetch(checkDuplicatePath, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `type=email&value=${encodeURIComponent(email)}` 
+            })
+            .then(response => response.text())
+            .then(text => {
+                if (text === "duplicate") {
+                    displayResponse(responseDiv, "⚠️ 이미 존재하는 이메일입니다. 인증번호를 보낼 수 없습니다.", 'error');
+                } else if (text === "available") {
+                    // 중복이 아닐 경우에만 인증번호 전송 로직 실행
+                    sendAuthCode(form, email);
+                } else {
+                    displayResponse(responseDiv, `이메일 중복 확인 중 서버 오류 발생: ${text}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Email Duplicate Check error:', error);
+                displayResponse(responseDiv, '네트워크 오류: 중복 확인에 실패했습니다.', 'error');
+            });
+        });
+
+        // ⭐️ 인증번호 전송 실제 로직 함수 ⭐️
+        function sendAuthCode(form, email) {
+            const formData = new FormData(form);
+            displayResponse(responseDiv, "인증번호를 전송 중입니다...", 'pending');
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => response.text())
+            .then(text => {
+                if (text.includes("성공") || text.includes("전송 완료")) {
+                    displayResponse(responseDiv, "인증번호가 전송되었습니다!", 'success');
+                } else {
+                    displayResponse(responseDiv, "이메일 전송 실패.", 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                displayResponse(responseDiv, '네트워크 오류: 서버와 통신할 수 없습니다.', 'error');
+            });
+        }
+        
+        // 2. 인증번호 확인 폼 처리 (기존과 동일)
+        document.getElementById('verifyCodeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            const email = document.getElementById('email').value;
+            formData.append('email', email); 
+            
+            displayResponse(responseDiv, '인증번호를 확인 중...', 'info');
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => response.text())
+            .then(text => {
+                if (text.includes("성공") || text.includes("인증 성공")) {
+                    displayResponse(responseDiv, "🎉 인증이 완료되었습니다. 다음 단계로 진행해주세요.", 'success');
+                    isAuthOK = true;
+                } else {
+                    displayResponse(responseDiv, "⚠️ 인증번호가 일치하지 않거나 만료되었습니다.", 'error');
+                    isAuthOK = false;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                displayResponse(responseDiv, '네트워크 오류: 서버와 통신할 수 없습니다.', 'error');
+                isAuthOK = false;
+            });
+        });
+        
+
+        // 3. NEXT 버튼: 세션에 데이터 저장 후 다음 페이지 이동 (중복 확인 로직 제거 -> 인증 확인만 남김)
+        nextButton.addEventListener('click', function () { 
+            const name = document.getElementById('name').value;
+            const birthdate = document.getElementById('birthdate').value;
+            const email = document.getElementById('email').value;
+
+            if (!name || !birthdate || !email) {
+                displayResponse(responseDiv, "모든 정보를 입력해주세요.", 'error'); 
+                return;
+            }
+
+            if (!isAuthOK) {
+                // 이메일 인증이 완료되었는지 확인
+                displayResponse(responseDiv, "⚠️ 이메일 인증을 먼저 완료해주세요.", 'error');
+                return;
+            }
+            
+            saveStep1Data(name, birthdate, email); 
+        });
+
+        // 데이터 저장 및 다음 페이지 이동 함수
+        function saveStep1Data(name, birthdate, email) {
+            
+            const serverPath = "/team_project/saveStep1"; 
+            displayResponse(responseDiv, "정보를 세션에 저장 중입니다...", 'pending');
+
+            fetch(serverPath, { 
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body:
+                    "name=" + encodeURIComponent(name) + 
+                    "&birthdate=" + encodeURIComponent(birthdate) +
+                    "&email=" + encodeURIComponent(email)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(result => {
+                        return Promise.reject({ status: response.status, result: result });
+                    });
+                }
+                return response.text();
+            })
+            .then(result => {
+                if (result.startsWith("success")) {
+                    displayResponse(responseDiv, "정보 저장 성공! 다음 페이지로 이동합니다.", 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = "resister_2.html"; 
+                    }, 1000);
+                    
+                } else {
+                    displayResponse(responseDiv, `세션 저장 실패. 예상치 못한 서버 응답: ${result}`, 'error');
+                }
+            })
+            .catch(error => {
+                if (error.status) {
+                    const statusText = error.status === 400 ? '필수 데이터 누락 오류' : '서버 측 오류';
+                    displayResponse(
+                        responseDiv, 
+                        `세션 저장 실패! 상태코드: ${error.status} (${statusText}).`, 
+                        'error'
+                    );
+                } else {
+                    displayResponse(responseDiv, '네트워크 오류 또는 치명적인 오류가 발생했습니다.', 'error');
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

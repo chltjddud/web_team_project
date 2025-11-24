@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PW찾기</title>
+<style>
+        /* 폰트 등록 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 기본 레이아웃 및 배경 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('../bgimg/하늘배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PixelFont', monospace;
+        }
+
+        /* ID 찾기 창 */
+        .register-window {
+            width: 600px;
+            height: 480px; /* 메시지 영역을 위해 높이 유지 */
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            color: #3a3a3a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 타이틀 바 */
+        .title-bar {
+            background-color: #3a3a3a;
+            color: white;
+            font-size: 24px;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #5a5a5a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* 입력 필드 및 버튼 컨테이너 */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px; 
+        }
+
+        /* 응답 메시지 스타일 */
+        #responseMessage {
+            margin-top: 20px;
+            padding: 10px 20px; /* 고정된 패딩 유지 */
+            border-radius: 4px;
+            font-family: 'PixelFont', monospace;
+            font-size: 16px;
+            text-align: center;
+            color: white;
+            width: 80%;
+            max-width: 500px;
+            box-sizing: border-box;
+            
+            /* ⭐️⭐️⭐️ 수정: 최소 높이를 고정하여 공간 유지 ⭐️⭐️⭐️ */
+            min-height: 45px; 
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            /* ⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️ */
+        }
+
+        /* 배경 클래스 */
+        .bg-success { background-color: #28a745; border: 2px solid #1e7e34; }
+        .bg-error { background-color: #dc3545; border: 2px solid #bd2130; }
+        .bg-pending, .bg-info { background-color: #ffc107; border: 2px solid #d39e00; color: #333; }
+
+
+        /* 라벨과 입력 필드를 묶는 컨테이너 */
+        .input-field-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0; 
+            width: 80%;
+            justify-content: space-between; 
+            max-width: 500px;
+        }
+
+        .input-label {
+            font-size: 16px;
+            color: white;
+            width: 120px; 
+            flex-shrink: 0;
+            text-align: left; 
+        }
+
+        /* 이메일 그룹의 너비를 다른 필드보다 넓게 조정 */
+        .email-input-group {
+            display: flex;
+            align-items: center;
+            width: calc(100% - 120px); 
+        }
+        
+        /* 일반 입력 필드 (ID, 인증번호)의 너비 */
+        .input-field-container:not(:has(.email-input-group)) .input-field {
+            width: calc(100% - 140px); 
+        }
+
+        .input-field {
+            flex-grow: 1; 
+            height: 40px;
+            padding: 0 0px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fff;
+            box-sizing: border-box; 
+        }
+
+        /* email-input-group 내의 input-field (이메일 입력창) */
+        .email-input-group .input-field {
+            margin-right: 10px;
+        }
+
+        /* 버튼 스타일 통일 */
+        .action-button {
+            width: 95px; 
+            height: 40px; 
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            padding: 0; 
+            cursor: pointer;
+            flex-shrink: 0; 
+            text-shadow: 2px 2px 0 #218838;
+
+            box-shadow: 
+                -4px -4px 0 #7dd891 inset, 
+                 4px  4px 0 #218838 inset;
+            font-family: 'PixelFont', monospace;
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+        }
+
+        .action-button:hover {
+            background-color: #218838;
+        }
+        
+        /* NEXT 버튼 */
+        .next-button {
+            width: 150px; 
+            height: 50px; 
+            margin: 20px 0 15px; 
+            background-color: #d89617;
+            color: white;
+			font-family: 'PixelFont', monospace; 
+            font-size: 24px; 
+            border: 4px solid #8b4513;
+           
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #8b4513;
+            box-shadow: 
+                -4px -4px 0 #ffe082 inset, 
+                 4px  4px 0 #8b4513 inset;
+            line-height: 42px; 
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.1s;
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const nextButton = document.querySelector('.next-button');
+            const sendAuthButton = document.getElementById('send-auth-btn');
+            const confirmAuthButton = document.getElementById('confirm-auth-btn');
+            const authField = document.getElementById('auth-number');
+            const emailField = document.getElementById('email');
+            const nameField = document.getElementById('name'); 
+            const responseDiv = document.getElementById('responseMessage'); 
+
+            // 초기 상태 설정
+            authField.disabled = true;
+            confirmAuthButton.disabled = true;
+            let isAuthConfirmed = false; 
+            
+            function displayResponse(div, text, type) {
+                div.textContent = text;
+                
+                div.classList.remove('bg-info', 'bg-pending', 'bg-success', 'bg-error'); 
+                
+                // ⭐️⭐️⭐️ 수정: 가시성 및 투명도만 조정하여 공간 유지 ⭐️⭐️⭐️
+                if (type === 'hide' || text === '') {
+                    div.style.visibility = 'hidden'; 
+                    div.style.opacity = '0';
+                    div.textContent = '';
+                    div.classList.remove('bg-info', 'bg-pending', 'bg-success', 'bg-error'); 
+                    return;
+                }
+                
+                // 메시지 표시 시
+                div.style.visibility = 'visible'; 
+                div.style.opacity = '1';
+                // ⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️
+
+                if (type === 'success') {
+                    div.classList.add('bg-success');
+                } else if (type === 'error') {
+                    div.classList.add('bg-error');
+                } else if (type === 'pending') {
+                    div.classList.add('bg-pending');
+                } else {
+                    div.classList.add('bg-info');
+                }
+            }
+            
+            // DOM 로드 후 초기 메시지 숨기기
+            displayResponse(responseDiv, '', 'hide');
+
+
+            // ----------------------------------------------------
+            // 1. "인증번호 전송" 버튼 클릭 시 (FindPwCheckServlet 호출)
+            // ----------------------------------------------------
+            sendAuthButton.addEventListener('click', function() {
+                const loginId = nameField.value;
+                const email = emailField.value;
+
+                if (!loginId || !email) {
+                    displayResponse(responseDiv, "ID와 이메일을 모두 입력하세요.", 'error');
+                    return;
+                }
+                
+                isAuthConfirmed = false; 
+                displayResponse(responseDiv, '이메일을 전송 중입니다...', 'pending');
+                
+                // ⭐️ 경로 수정: /team_project/findPWCheck ⭐️
+                const serverPath = "/team_project/findPWCheck"; 
+
+                fetch(serverPath, { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: 
+                        "loginId=" + encodeURIComponent(loginId) + 
+                        "&email=" + encodeURIComponent(email)
+                })
+                .then(response => response.text())
+                .then(text => {
+                    if (text.startsWith("success")) {
+                        displayResponse(responseDiv, "이메일이 전송되었습니다!", 'success');
+                        authField.disabled = false;
+                        confirmAuthButton.disabled = false;
+                    } else if (text.startsWith("error:")) {
+                        const detailError = text.substring(6); 
+                        
+                        if (detailError.includes("일치하는 사용자 정보를 찾을 수 없습니다")) {
+                             displayResponse(responseDiv, "입력하신 ID와 이메일이 일치하는 계정이 없습니다.", 'error');
+                        } else if (detailError.includes("이메일 전송에 실패했습니다")) {
+                             displayResponse(responseDiv, "서버 설정 및 라이브러리를 확인하세요.", 'error');
+                        } else if (detailError.includes("필수 정보")) {
+                            displayResponse(responseDiv, "ID 또는 이메일을 확인하세요.", 'error');
+                        } else {
+                            displayResponse(responseDiv, `🚫 전송 실패 (서버): ${detailError}`, 'error');
+                        }
+                    } else {
+                        displayResponse(responseDiv, '예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth Send error:', error);
+                    displayResponse(responseDiv, '네트워크 오류: 인증번호 전송에 실패했습니다.', 'error');
+                });
+            });
+
+            // ----------------------------------------------------
+            // 2. "인증확인" 버튼 클릭 시 (FindPwVerifyCodeServlet 호출)
+            // ----------------------------------------------------
+            confirmAuthButton.addEventListener('click', function() {
+                const loginId = nameField.value;
+                const email = emailField.value;
+                const authCode = authField.value;
+
+                if (!authCode || authCode.length < 6) { 
+                    displayResponse(responseDiv, "인증번호 6자리를 올바르게 입력하세요.", 'error');
+                    return;
+                }
+                
+                displayResponse(responseDiv, '인증번호를 확인 중...', 'info');
+                
+                // ⭐️ 경로 수정: /team_project/FindPWverifyCode ⭐️
+                const serverPath = "/team_project/FindPWverifyCode"; 
+
+                fetch(serverPath, { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body:
+                        "loginId=" + encodeURIComponent(loginId) +
+                        "&email=" + encodeURIComponent(email) +
+                        "&authCode=" + encodeURIComponent(authCode)
+                })
+                .then(response => response.text())
+                .then(text => {
+                    if (text.startsWith("success")) {
+                        displayResponse(responseDiv, "인증이 완료되었습니다!", 'success');
+                        isAuthConfirmed = true; 
+                        authField.disabled = true; 
+                        confirmAuthButton.disabled = true;
+                    } else if (text.startsWith("error:")) {
+                        const detailError = text.substring(6);
+
+                        if (detailError.includes("만료되었습니다")) {
+                            displayResponse(responseDiv, "인증번호가 만료되었습니다.", 'error');
+                        } else if (detailError.includes("일치하지 않습니다")) {
+                            displayResponse(responseDiv, "입력하신 6자리 번호를 다시 확인해주세요.", 'error');
+                        } else if (detailError.includes("유효하지 않습니다")) {
+                            displayResponse(responseDiv, "인증번호 전송 버튼을 먼저 눌러주세요.", 'error');
+                        } else {
+                            displayResponse(responseDiv, `🚫 인증 실패 (서버): ${detailError}`, 'error');
+                        }
+                        isAuthConfirmed = false;
+                    } else {
+                        displayResponse(responseDiv, '예상치 못한 오류로 인증에 실패했습니다.', 'error');
+                        isAuthConfirmed = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth Confirm error:', error);
+                    displayResponse(responseDiv, '네트워크 오류: 인증 확인에 실패했습니다.', 'error');
+                    isAuthConfirmed = false;
+                });
+            });
+
+
+            // ----------------------------------------------------
+            // 3. "NEXT" 버튼 클릭 시 (FindPwServlet 호출)
+            // ----------------------------------------------------
+            nextButton.addEventListener('click', function() {
+                const loginId = nameField.value;
+                const email = emailField.value;
+                
+                if (!loginId || !email) {
+                    displayResponse(responseDiv, "ID와 이메일을 모두 입력하세요.", 'error');
+                    return;
+                }
+
+                if (!isAuthConfirmed) {
+                    displayResponse(responseDiv, "이메일 인증을 먼저 완료해주세요. ", 'error');
+                    return;
+                }
+                
+                // 메시지 수정: 임시 비밀번호 발급 -> 비밀번호 조회 
+                displayResponse(responseDiv, "비밀번호를 조회 중입니다...", 'pending');
+                
+                // ⭐️ 경로 수정: /team_project/findPW ⭐️
+                const serverPath = "/team_project/findPW"; 
+
+                fetch(serverPath, { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body:
+                        "loginId=" + encodeURIComponent(loginId) + 
+                        "&email=" + encodeURIComponent(email)
+                })
+                .then(response => response.text())
+                .then(text => {
+                    if (text.startsWith("success")) {
+                        // 메시지 수정: 임시 비밀번호 발급 완료 -> 비밀번호 조회 완료 
+                        displayResponse(responseDiv, "비밀번호 조회가 완료되었습니다.", 'success');
+                        setTimeout(() => {
+                            // FindPwServlet에서 세션에 저장한 정보를 findPW2.html에서 표시할 것입니다.
+                            window.location.href = 'findPW2.html'; 
+                        }, 1000); 
+                        
+                    } else if (text.startsWith("error:")) {
+                         const detailError = text.substring(6);
+                        
+                        if (detailError.includes("인증되지 않은 사용자")) {
+                            displayResponse(responseDiv, "세션이 만료되었습니다.", 'error');
+                        } else if (detailError.includes("일치하는 사용자 정보를 찾을 수 없습니다")) {
+                            // FindPwServlet의 에러 메시지에 맞게 조정
+                            displayResponse(responseDiv, "입력하신 정보로 비밀번호를 찾을 수 없습니다.", 'error');
+                        } else {
+                            displayResponse(responseDiv, `🚫 비밀번호 찾기 실패 (서버): ${detailError}`, 'error');
+                        }
+                    } else {
+                        displayResponse(responseDiv, '예상치 못한 오류로 비밀번호 찾기에 실패했습니다.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Final PW Find error:', error);
+                    displayResponse(responseDiv, '네트워크 오류: 비밀번호 찾기에 실패했습니다.', 'error');
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="register-window">
+            <div class="title-bar">PW찾기</div>
+
+            <div class="content-area">
+                <div class="input-field-container">
+                    <label class="input-label" for="name">ID</label>
+                    <input class="input-field" type="text" id="name" placeholder="ID를 입력하세요" required>
+                </div>
+                <div class="input-field-container">
+                    <label class="input-label" for="email">이메일</label>
+                    <div class="email-input-group">
+                        <input class="input-field" type="email" id="email" placeholder="이메일을 입력하세요" required>
+                        <button class="action-button" id="send-auth-btn">인증번호 전송</button>
+                    </div>
+                </div>
+                <div class="input-field-container">
+                    <label class="input-label" for="auth-number">인증번호</label>
+                    <div class="email-input-group">
+                        <input class="input-field" type="text" id="auth-number" placeholder="인증번호 6자리" maxlength="6" required>
+                        <button class="action-button" id="confirm-auth-btn">인증확인</button>
+                    </div>
+                </div>
+
+                <div id="responseMessage"></div>
+
+                <button class="next-button">NEXT</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PW찾기 결과</title>
+<style>
+        /* 폰트 등록 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 기본 레이아웃 및 배경 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('../bgimg/하늘배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PixelFont', monospace;
+        }
+
+
+        .register-window {
+            width: 600px;
+            height: 350px; 
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            color: #3a3a3a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 타이틀 바 */
+        .title-bar {
+            background-color: #3a3a3a;
+            color: white;
+            font-size: 24px;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #5a5a5a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* 입력 필드 및 버튼 컨테이너 */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px; 
+        }
+
+        /* 문장만 표시하는 영역 스타일 */
+        .input-field-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0 20px; 
+            width: 100%; 
+            justify-content: center; 
+            max-width: none;
+        }
+        
+        /* PW 출력 영역 스타일 추가 */
+        #pwDisplay {
+            font-size: 28px; /* 비밀번호는 ID보다 약간 작게 표시 */
+            color: #ff5e5e; /* 경고를 위해 붉은색 계열 사용 */
+            margin: 10px 0 40px; 
+            text-shadow: 2px 2px 0 #8b4513;
+            visibility: hidden; /* 초기에는 보이지 않게 */
+            text-align: center;
+        }
+        
+        #resultMessage {
+            font-size: 20px; 
+            color: white;
+            width: auto; 
+            flex-shrink: 0;
+            text-align: center; 
+            cursor: default;
+        }
+        
+        /* HOME 버튼 */
+        .next-button {
+            width: 150px; 
+            height: 50px; 
+            margin: 0; 
+            background-color: #d89617;
+            color: white;
+			font-family: 'PixelFont', monospace; 
+            font-size: 24px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #8b4513;
+            box-shadow: 
+                -4px -4px 0 #ffe082 inset, 
+                 4px  4px 0 #8b4513 inset;
+            line-height: 42px; 
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.1s;
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const nextButton = document.querySelector('.next-button');
+            const resultMessageDiv = document.getElementById('resultMessage');
+            // ⭐️ ID와 PW를 모두 표시하기 위해 div 변경 ⭐️
+            const pwDisplayDiv = document.getElementById('pwDisplay');
+            
+            // 1. 초기 메시지 설정
+            resultMessageDiv.textContent = "비밀번호를 조회 중입니다. 잠시만 기다려주세요...";
+            pwDisplayDiv.textContent = "";
+
+            // 2. 페이지 로드 후 서버에 PW 요청 (AJAX)
+            // ⭐️ 서블릿 경로 변경: /getFoundPw ⭐️
+            fetch('/team_project/getFoundPw', { 
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else if (response.status === 404) {
+                    throw new Error("🚨404_NOT_FOUND: 서버 경로를 찾을 수 없습니다.");
+                } else if (response.status === 401) {
+                    return response.text().then(text => {
+                         throw new Error(`⚠️${response.status}_AUTH_ERROR: ${text.substring(6).split(":")[0] || "세션 인증 실패"}`);
+                    });
+                } else {
+                    throw new Error(`🚫HTTP_ERROR_${response.status}: 서버 내부 오류가 발생했습니다. (500 오류라면 서버 로그 확인)`);
+                }
+            })
+            .then(text => {
+                // ⭐️ 서버 텍스트 응답 분석 (success:ID:PW) ⭐️
+                if (text.startsWith("success:")) {
+                    const parts = text.substring(8).split(":"); // "success:ID:PW" -> [ID, PW]
+                    const foundId = parts[0];
+                    const foundPw = parts[1];
+                    
+                    // 메시지 및 PW 표시 업데이트
+                    resultMessageDiv.textContent = `고객님의 ID (${foundId})의 비밀번호는 아래와 같습니다.`;
+                    // ⭐️ ID와 PW를 함께 표시 ⭐️
+                    pwDisplayDiv.innerHTML = `**PW:** ${foundPw}`;
+                    pwDisplayDiv.style.visibility = 'visible'; 
+                } else if (text.startsWith("error:")) {
+                    const errorCode = text.substring(6).split(":")[0];
+                    throw new Error(`❌SERVER_LOGIC_ERROR: ${errorCode} (서버 응답 오류)`);
+                } else {
+                    throw new Error("❓UNKNOWN_RESPONSE: 서버 응답 형식이 올바르지 않습니다.");
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                resultMessageDiv.textContent = `🚫 비밀번호 조회 실패: ${error.message}`;
+                pwDisplayDiv.style.visibility = 'hidden';
+            });
+
+
+            // 3. HOME 버튼 클릭 시 동작 (메인 페이지로 이동)
+            nextButton.addEventListener('click', function() {
+                window.location.href = '../main/main_page.html'; 
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="register-window">
+            <div class="title-bar"> PW 찾기 결과</div>
+
+            <div class="content-area">
+                <div class="input-field-container">
+                    <label id="resultMessage"></label>
+                </div>
+                
+                <div id="pwDisplay"></div>
+                
+                <button class="next-button">HOME</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
