@@ -155,7 +155,7 @@
             .then(response => {
                 if (response.status === 401) {
                     // 로그인 페이지로 강제 리다이렉트
-                    window.location.href = '../main_page.html?error=sessionExpired';
+                    window.location.href = '/team_project/test/main/main_page.html?error=sessionExpired';
                     return Promise.reject('세션이 만료되었거나 로그인되어 있지 않습니다.');
                 } 
                 if (!response.ok) {
