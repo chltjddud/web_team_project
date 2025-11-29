@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모리 게임 - 메인 화면</title>
+    <style>
+        /* -------------------------------------------
+        * 1. 폰트 및 기본 설정
+        * ------------------------------------------- */
+        @font-face {
+            font-family: 'PixelFont'; 
+            /* 폰트 경로를 현재 파일 기준으로 수정 */
+            src: url('DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 🚩 사용자 요청 BODY 스타일 적용 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 배경 이미지 설정 */
+            background-image: url('memorygame배경.png'); 
+            background-size: cover;
+            background-position: center;
+            /* 🚩 수정: 모든 글씨에 PixelFont 적용 */
+            font-family: 'PixelFont', Arial, sans-serif; 
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+        
+        /* -------------------------------------------
+        * 🚩 2. 메인 콘텐츠 래퍼 (세로 정렬 담당)
+        * ------------------------------------------- */
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: column; /* 내부 요소(타이틀, 버튼)를 세로로 정렬 */
+            align-items: center; /* 내부 요소를 수평 중앙 정렬 */
+        }
+
+
+        /* -------------------------------------------
+        * 3. 타이틀 이미지 설정
+        * ------------------------------------------- */
+        .title-image {
+            /* 🚩 타이틀 이미지 파일 사용 */
+            background-image: url('memorygametitle.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            /* 이미지 크기 조정 (필요에 따라 변경) */
+            width: 700px;
+            height: 250px; 
+            /* 타이틀과 버튼 사이 간격 */
+            margin-bottom: 50px;
+        }
+
+        /* -------------------------------------------
+        * 4. 버튼 영역 및 버튼 스타일
+        * ------------------------------------------- */
+        .buttons-container {
+            display: flex;
+            flex-direction: column; /* 세로로 배치 유지 */
+            gap: 20px; /* 버튼 간 세로 간격 */
+            margin-top: 0; 
+        }
+        
+        /* 🚩 제공해주신 버튼 CSS */
+        .next-button {
+            width: 200px; 
+            height: 75px; 
+            background-color: #d89617;
+            color: white;
+            font-size: 40px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 3px 3px 0 #8b4513;
+            box-shadow: 
+                -5px -5px 0 #ffe082 inset, 
+                 5px  5px 0 #8b4513 inset;
+            line-height: 67px; 
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PixelFont', monospace; 
+            text-align: center;
+            border-radius: 5px; 
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <!-- 🚩 타이틀과 버튼을 감싸서 세로 정렬을 담당하는 래퍼 -->
+    <div class="main-content-wrapper">
+        <!-- 1. 타이틀 이미지 -->
+        <div class="title-image"></div>
+
+        <!-- 2. 버튼 컨테이너 (타이틀 밑에 배치) -->
+        <div class="buttons-container">
+            <button class="next-button" id="start-button">START</button>
+            <button class="next-button" id="rule-button">RULE</button>
+            <button class="next-button" id="ranking-button">RANKING</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 🚩 버튼 클릭 이벤트 리스너 설정
+            
+            document.getElementById('start-button').addEventListener('click', () => {
+                // 게임 시작 페이지로 이동 (경로 변경 필수)
+                window.location.href = 'memory_game.html'; 
+            });
+
+            document.getElementById('rule-button').addEventListener('click', () => {
+                // 규칙 설명 페이지로 이동 (경로 변경 필수)
+                window.location.href = 'memory_rule.html'; 
+            });
+
+            document.getElementById('ranking-button').addEventListener('click', () => {
+                // 랭킹 페이지로 이동 (경로 변경 필수)
+                window.location.href = 'memory_ranking.html'; 
+            });
+
+        });
+    </script>
+</body>
+</html>

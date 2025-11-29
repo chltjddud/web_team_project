@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMORY GAME RANKING</title>
+<style>
+        /* 폰트 등록 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 기본 레이아웃 및 배경 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('memorygame배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 적용 */
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PixelFont', monospace;
+        }
+
+
+        .register-window {
+            /* 크기 확대 */
+            width: 700px; 
+            height: 500px; 
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            color: #3a3a3a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px; /* 🚩 버튼과의 간격 확보 */
+        }
+
+        /* 타이틀 바 */
+        .title-bar {
+            background-color: #3a3a3a;
+            color: white;
+            font-size: 24px;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #5a5a5a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* 입력 필드 및 버튼 컨테이너 */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px; 
+            justify-content: flex-start; 
+        }
+
+        /* 문장만 표시하는 영역 스타일 */
+        .input-field-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0 20px; 
+            width: 90%; 
+            justify-content: center; 
+            max-width: none;
+            color: white;
+            font-size: 30px;
+            text-align: center;
+            line-height: 1.5; 
+            
+        }
+        
+        /* -------------------------------------------
+        * 🚩 푸터 버튼 영역 (양 끝 배치)
+        * ------------------------------------------- */
+        .buttons-footer {
+            /* .register-window의 너비에 맞게 설정 */
+            width: 700px; 
+            display: flex;
+            justify-content: space-between; /* 🚩 양 끝에 버튼 배치 */
+            padding: 0 20px; /* 컨테이너 내부 여백과 맞춤 */
+            box-sizing: border-box;
+        }
+
+        /* 버튼 기본 스타일 */
+        .next-button {
+            width: 250px; /* 🚩 양 끝 배치를 위해 크기 조정 */
+            height: 75px; 
+            margin: 0; 
+            background-color: #d89617;
+            color: white;
+			font-family: 'PixelFont', monospace; 
+            font-size: 45px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #8b4513;
+            box-shadow: 
+                -4px -4px 0 #ffe082 inset, 
+                 4px  4px 0 #8b4513 inset;
+            line-height: 42px; 
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.1s;
+            text-align: center;
+        }
+
+        .next-button:hover {
+            background-color: #e0ac42;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="register-window">
+            <div class="title-bar">MEMORY GAME RANKING</div>
+
+            <div class="content-area">
+                <div class="input-field-container">
+                    메모리 게임 랭킹
+                </div>
+                
+                <div id="idDisplay"></div>
+                
+                
+            </div>
+        </div>
+        
+        <div class="buttons-footer">
+            <button class="next-button" id="menu-button">MENU</button>
+            <button class="next-button" id="start-button">START</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const startButton = document.getElementById('start-button');
+
+            // 🚩 MENU 버튼 클릭 시 메인 화면으로 이동
+            menuButton.addEventListener('click', () => {
+                window.location.href = 'memory_gamestart.html'; 
+            });
+            
+            // 🚩 START 버튼 클릭 시 게임 시작 화면으로 이동
+            startButton.addEventListener('click', () => {
+                window.location.href = 'memory_game.html'; 
+            });
+        });
+    </script>
+</body>
+</html>

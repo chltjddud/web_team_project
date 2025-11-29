@@ -4,15 +4,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Date; 
+import java.time.LocalDate; 
 import DB.DBUtil; 
+import model.User; 
 
 public class UserDAO { 
     
-    // ⭐️ 신규 추가: ID와 이메일로 비밀번호 조회 (요청 사항 반영) ⭐️
+    // ⭐️ 로그인 인증 및 전체 사용자 정보 조회를 위한 쿼리 ⭐️
+    private static final String FIND_USER_BY_CREDENTIALS_SQL = 
+        "SELECT user_id, loginID, password, name, birth, email, email_verified, nickname FROM users WHERE loginID = ? AND password = ?";
+    
+    // ⭐️ 기존 상수 ⭐️
+    private static final String LOGIN_CHECK_SQL = 
+        "SELECT COUNT(*) FROM users WHERE loginID = ? AND password = ?";
+    
     private static final String FIND_PASSWORD_BY_ID_EMAIL_SQL =
         "SELECT password FROM users WHERE loginID = ? AND email = ?";
     
-    // ⭐️ 기존 상수 ⭐️
+    // email_verified 필드 추가
     private static final String INSERT_USER_SQL = 
         "INSERT INTO users (loginID, password, name, birth, email, nickname, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?)";
     
@@ -30,7 +40,7 @@ public class UserDAO {
 
 
     // -------------------------------------------------------------------
-    // 1. 중복 확인 범용 메서드 (변경 없음)
+    // 1. 중복 확인 범용 메서드
     // -------------------------------------------------------------------
     public boolean isValueDuplicate(String type, String value) {
         String sql = "SELECT COUNT(*) FROM users WHERE " + type + " = ?"; 
@@ -74,7 +84,7 @@ public class UserDAO {
     }
     
     // -------------------------------------------------------------------
-    // 2. 사용자 삽입(저장) 메서드 (변경 없음)
+    // 2. 사용자 삽입(저장) 메서드
     // -------------------------------------------------------------------
 
     public boolean insertUser(String loginId, String password, String nickname, String name, String email, String birthdate) {
@@ -89,7 +99,7 @@ public class UserDAO {
             pstmt.setString(1, loginId);   // loginID
             pstmt.setString(2, password);  // password
             pstmt.setString(3, name);      // name
-            pstmt.setString(4, birthdate); // birth
+            pstmt.setString(4, birthdate); // birth (DB DATE 형식에 맞는 문자열)
             pstmt.setString(5, email);     // email
             pstmt.setString(6, nickname);  // nickname
             pstmt.setBoolean(7, false);    // email_verified
@@ -107,7 +117,7 @@ public class UserDAO {
     }
     
     // -------------------------------------------------------------------
-    // 3. ID 찾기 관련 메서드 (변경 없음)
+    // 3. ID 찾기 관련 메서드
     // -------------------------------------------------------------------
 
     public boolean checkUserExistsByNameAndEmail(String name, String email) {
@@ -159,17 +169,9 @@ public class UserDAO {
     }
 
     // -------------------------------------------------------------------
-    // 4. PW 찾기 관련 메서드 (변경 및 추가)
+    // 4. PW 찾기 관련 메서드
     // -------------------------------------------------------------------
     
-    // ⭐️ 신규 메서드: 실제 비밀번호 조회 ⭐️
-    /**
-     * PW 찾기 시, ID와 이메일이 모두 일치하는 사용자의 비밀번호를 조회합니다.
-     * (경고: 배포 시에는 임시 비밀번호를 생성/업데이트하는 방식으로 변경해야 합니다.)
-     * @param loginId 사용자가 입력한 ID
-     * @param email 사용자가 입력한 이메일
-     * @return 일치하는 사용자의 실제 비밀번호, 없으면 null
-     */
     public String findPasswordByLoginIdAndEmail(String loginId, String email) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -178,7 +180,6 @@ public class UserDAO {
 
         try {
             conn = DBUtil.getConnection(); 
-            // ⭐️ 추가된 SQL 상수 사용 ⭐️
             pstmt = conn.prepareStatement(FIND_PASSWORD_BY_ID_EMAIL_SQL); 
             pstmt.setString(1, loginId);
             pstmt.setString(2, email);
@@ -196,7 +197,6 @@ public class UserDAO {
         return actualPassword;
     }
     
-    // 기존 메서드 (변경 없음)
     public boolean checkUserExistsByIdAndEmail(String loginId, String email) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -210,7 +210,6 @@ public class UserDAO {
             pstmt.setString(2, email);
             rs = pstmt.executeQuery();
             
-            // 0보다 큰 값(사용자 존재)이 반환되면 true
             if (rs.next() && rs.getInt(1) > 0) {
                 exists = true;
             }
@@ -223,7 +222,6 @@ public class UserDAO {
         return exists;
     }
 
-    // 기존 메서드 (변경 없음 - 임시 비밀번호 방식에서는 사용되지만, 여기서는 그대로 유지)
     public boolean updatePassword(String loginId, String newPassword) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -234,7 +232,7 @@ public class UserDAO {
             pstmt = conn.prepareStatement(UPDATE_PASSWORD_SQL);
             
             pstmt.setString(1, newPassword); 
-            pstmt.setString(2, loginId);     
+            pstmt.setString(2, loginId);      
             
             int rowsAffected = pstmt.executeUpdate();
             
@@ -249,5 +247,89 @@ public class UserDAO {
             DBUtil.close(conn, pstmt);
         }
         return success;
+    }
+
+    // -------------------------------------------------------------------
+    // 5. 로그인 인증 및 사용자 정보 조회 메서드 (User 객체 반환) ⭐️추가됨⭐️
+    // -------------------------------------------------------------------
+
+    /**
+     * ID와 비밀번호가 일치하는 사용자의 정보를 조회합니다.
+     * @param loginId 사용자가 입력한 ID
+     * @param password 사용자가 입력한 비밀번호
+     * @return 일치하는 사용자가 있으면 User 객체를, 없으면 null을 반환
+     */
+    public User findUserByCredentials(String loginId, String password) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        User user = null;
+        
+        try {
+            conn = DBUtil.getConnection(); 
+            // ⭐️ FIND_USER_BY_CREDENTIALS_SQL 사용 ⭐️
+            pstmt = conn.prepareStatement(FIND_USER_BY_CREDENTIALS_SQL); 
+            pstmt.setString(1, loginId);
+            pstmt.setString(2, password);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                // DB의 DATE를 Java 8의 LocalDate로 변환
+                Date birthSqlDate = rs.getDate("birth");
+                
+                user = new User(
+                    rs.getInt("user_id"),
+                    rs.getString("loginID"), 
+                    rs.getString("password"),
+                    rs.getString("name"), 
+                    birthSqlDate != null ? birthSqlDate.toLocalDate() : null, // DB DATE -> LocalDate
+                    rs.getString("email"),
+                    rs.getBoolean("email_verified"),
+                    rs.getString("nickname")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("DB 오류: 사용자 정보 조회 중 예외 발생");
+            e.printStackTrace();
+        } finally {
+            DBUtil.close(conn, pstmt, rs);
+        }
+        return user;
+    }
+    
+    // -------------------------------------------------------------------
+    // 6. 로그인 인증 메서드 (COUNT만 반환) (기존 5번 로직 유지)
+    // -------------------------------------------------------------------
+
+    /**
+     * ID와 비밀번호가 모두 일치하는 사용자가 있는지 확인하여 로그인 인증을 수행합니다.
+     * @param loginId 사용자가 입력한 ID
+     * @param password 사용자가 입력한 비밀번호
+     * @return 일치하는 사용자가 있으면 true, 없으면 false
+     */
+    public boolean checkLoginCredentials(String loginId, String password) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean isValid = false;
+
+        try {
+            conn = DBUtil.getConnection(); 
+            pstmt = conn.prepareStatement(LOGIN_CHECK_SQL); 
+            pstmt.setString(1, loginId);
+            pstmt.setString(2, password);
+            rs = pstmt.executeQuery();
+            
+            // COUNT(*) 결과가 1 이상이면 인증 성공
+            if (rs.next() && rs.getInt(1) > 0) {
+                isValid = true;
+            }
+        } catch (SQLException e) {
+            System.err.println("DB 오류: 로그인 인증 중 예외 발생");
+            e.printStackTrace();
+        } finally {
+            DBUtil.close(conn, pstmt, rs);
+        }
+        return isValid;
     }
 }

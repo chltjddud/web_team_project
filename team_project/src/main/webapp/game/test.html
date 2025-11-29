@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 짝 맞추기 게임</title>
+    <style>
+        /* -------------------------------------------
+        * 1. CSS (스타일) - 폰트 적용 및 그리드 설정
+        * ------------------------------------------- */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 배경 이미지 설정 */
+            background-image: url('memorygame배경.png'); 
+            background-size: cover;
+            background-position: center;
+            /* 🚩 수정: 모든 글씨에 PixelFont 적용 */
+            font-family: 'PixelFont', Arial, sans-serif; 
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-size: 60% auto;
+            background-color: #87CEEB;
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .info-board {
+            font-size: 35px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold; /* 폰트 적용 후 굵기 초기화 */
+        }
+
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); 
+            grid-gap: 15px;
+            width: 550px;
+            height: 670px;
+            perspective: 1000px; 
+        }
+
+        /* 카드 자체 (뒷면 이미지/크기/3D 효과 포함) */
+        .memory-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform: scale(1);
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+
+        /* 카드가 뒤집혔을 때의 상태 */
+        .memory-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        /* 짝이 맞았을 때 애니메이션 */
+        .memory-card.match {
+            transform: scale(0.9);
+            box-shadow: 0 0 10px #4caf50;
+            opacity: 0.7;
+            cursor: default;
+        }
+        
+        /* 일시적으로 클릭 비활성화 */
+        .memory-card.disable-click {
+            pointer-events: none;
+        }
+        
+        /* 카드 앞면과 뒷면 공통 스타일 */
+        .front-face,
+        .back-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            border-radius: 5px;
+            background-size: cover;
+            backface-visibility: hidden;
+        }
+
+        /* 카드 뒷면 이미지 적용 */
+        .back-face {
+            background-image: url('memorygame카드 뒷면.png');
+            background-color: #7986cb;
+            border: 3px solid #3f51b5;
+        }
+
+        /* 카드 앞면: 이미지는 JS에서 설정 */
+        .front-face {
+            transform: rotateY(180deg);
+            background-color: #f1f1f1;
+            border: 3px solid #4CAF50;
+        }
+
+        /* 👇 게임 오버 오버레이 스타일 👇 */
+		.game-over-overlay {
+		    position: fixed;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%, -50%); 
+		    
+		    width: 80%; 
+		    height: 80%;
+		    
+		    background-image: url('게임오버_배경X.png');
+		    background-size: cover;
+		    background-position: center;
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: center;
+		    align-items: center;
+		    cursor: pointer;
+		    visibility: hidden;
+		    opacity: 0;
+		    transition: opacity 0.5s ease;
+		    z-index: 100;
+		    color: white;
+		    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 명시적 적용 (body 상속되지만 안전을 위해) */
+		}
+        .game-over-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .game-over-message {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: normal; /* 폰트 적용 후 굵기 초기화 */
+        }
+        .game-over-sub-message {
+            font-size: 1.5em;
+            margin-top: 10px;
+            font-weight: normal; /* 폰트 적용 후 굵기 초기화 */
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        
+        <div class="info-board">
+            뒤집은 횟수: <span id="moves">0</span>회
+        </div>
+        <div class="memory-board" id="memory-board">
+            </div>
+    </div>
+
+    <div class="game-over-overlay" id="game-over-overlay">
+        <div class="game-over-message" id="final-score-message"></div>
+        <div class="game-over-sub-message">아무 곳이나 클릭하면 다음 페이지로 이동합니다.</div>
+    </div>
+
+    <script>
+        /* -------------------------------------------
+        * 2. JavaScript (게임 로직) - 다음 페이지 이동 로직
+        * ------------------------------------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+            const memoryBoard = document.getElementById('memory-board');
+            const movesDisplay = document.getElementById('moves');
+            const gameOverOverlay = document.getElementById('game-over-overlay');
+            const finalScoreMessage = document.getElementById('final-score-message');
+            
+            // 🚩 13가지 카드 앞면 이미지 목록 (13개 x 2 = 26장)
+            const cardImages = [
+            	'스페이드2.png'
+            ];
+
+            let hasFlippedCard = false;
+            let lockBoard = false;
+            let firstCard, secondCard;
+            let moves = 0;
+
+            // 1. 카드 데이터 생성 및 섞기
+            function createCards() {
+                const cardsArray = [...cardImages, ...cardImages];
+                
+                for (let i = cardsArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cardsArray[i], cardsArray[j]] = [cardsArray[j], cardsArray[i]];
+                }
+                return cardsArray;
+            }
+
+            // 2. 카드 요소 생성 및 보드에 추가
+            function generateBoard() {
+                memoryBoard.innerHTML = '';
+                const shuffledCards = createCards();
+
+                shuffledCards.forEach(imageName => {
+                    const card = document.createElement('div');
+                    card.classList.add('memory-card');
+                    card.setAttribute('data-image', imageName);
+
+                    const frontFace = document.createElement('div');
+                    frontFace.classList.add('front-face');
+                    frontFace.style.backgroundImage = `url('images/${imageName}')`;
+                    
+                    const backFace = document.createElement('div');
+                    backFace.classList.add('back-face');
+                    
+                    card.appendChild(frontFace);
+                    card.appendChild(backFace);
+                    
+                    card.addEventListener('click', flipCard); 
+
+                    memoryBoard.appendChild(card);
+                });
+            }
+
+            // 3. 카드 뒤집기 함수
+            function flipCard() {
+                if (lockBoard) return;
+                if (this === firstCard) return;
+
+                this.classList.add('flip');
+
+                if (!hasFlippedCard) {
+                    hasFlippedCard = true;
+                    firstCard = this;
+                    return;
+                }
+                
+                secondCard = this;
+                moves++;
+                movesDisplay.textContent = moves;
+
+                checkForMatch();
+            }
+
+            // 4. 짝이 맞는지 확인
+            function checkForMatch() {
+                let isMatch = firstCard.getAttribute('data-image') === secondCard.getAttribute('data-image');
+                
+                if (isMatch) {
+                    disableCards();
+                } else {
+                    unflipCards();
+                }
+            }
+
+            // 5. 짝이 맞았을 때
+            function disableCards() {
+                firstCard.removeEventListener('click', flipCard);
+                secondCard.removeEventListener('click', flipCard);
+                
+                firstCard.classList.add('match');
+                secondCard.classList.add('match');
+
+                resetBoard();
+                checkWin();
+            }
+
+            // 6. 짝이 틀렸을 때
+            function unflipCards() {
+                lockBoard = true;
+
+                setTimeout(() => {
+                    firstCard.classList.remove('flip');
+                    secondCard.classList.remove('flip');
+                    resetBoard();
+                }, 1000);
+            }
+
+            // 7. 보드 상태 초기화
+            function resetBoard() {
+                [hasFlippedCard, lockBoard] = [false, false];
+                [firstCard, secondCard] = [null, null];
+            }
+            
+            // 8. 승리 조건 확인
+            function checkWin() {
+                const flippedCards = document.querySelectorAll('.memory-card:not(.match)').length;
+                if (flippedCards === 0) {
+                    showGameOverScreen(`축하합니다! ${moves}번 만에 모든 짝을 맞췄어요!`);
+                }
+            }
+            
+            // 9. 게임 오버 화면 표시 함수
+            function showGameOverScreen(message) {
+                finalScoreMessage.textContent = message;
+                
+                gameOverOverlay.classList.add('show');
+                
+                // 클릭 이벤트 리스너 추가 (클릭 시 다음 페이지로 이동)
+                gameOverOverlay.addEventListener('click', function nextPageHandler() {
+                    
+                    // 🚩 다음 페이지 URL을 여기에 입력하세요.
+                    window.location.href = 'memory_gameover.html'; 
+
+                    // 이벤트 리스너 제거
+                    gameOverOverlay.removeEventListener('click', nextPageHandler); 
+                });
+                
+                // 보드 위에 있는 게임 요소들 클릭 방지
+                memoryBoard.style.pointerEvents = 'none';
+            }
+
+            // 10. 게임 시작/초기화 함수
+            function startGame() {
+                moves = 0;
+                movesDisplay.textContent = moves;
+                resetBoard();
+                generateBoard();
+                
+                // 게임 시작 시 보드 클릭 다시 활성화
+                memoryBoard.style.pointerEvents = 'auto'; 
+            }
+
+            // 초기화
+            startGame();
+        });
+    </script>
+</body>
+</html>

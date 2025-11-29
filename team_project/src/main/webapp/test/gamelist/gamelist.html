@@ -8,7 +8,7 @@
         /* 1. 폰트 등록: DungGeunMo.ttf 파일 적용 */
         @font-face {
             font-family: 'PixelFont'; 
-            src: url('../DungGeunMo.ttf') format('truetype'); /* 폰트 파일 경로 지정 */
+            src: url('../DungGeunMo.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
@@ -19,20 +19,251 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 배경 이미지 설정 */
+            /* 배경 이미지 설정: main_page와 동일한 하늘 배경 */
             background-image: url('../bgimg/game_배경.png'); 
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
             overflow: hidden;
-            background-repeat: no-repeat; /* 이미지가 너무 작을 경우 반복되지 않도록 설정 */
+            background-repeat: no-repeat;
     		background-size: 60% auto;
     		background-color: #87CEEB;
         }
+        
+        /* ⭐️ 게임 리스트 창 컨테이너 ⭐️ */
+        .gamelist-window {
+            width: 600px; 
+            height: 650px; 
+            background-color: #2c3e50; 
+            border: 4px solid #3a3a3a;
+            box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.5); 
 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            overflow: hidden; 
+            color: #3a3a3a;
+            position: relative; 
+        }
+        
+        /* ⭐️ 헤더 (검색 영역) 스타일 ⭐️ */
+        .gamelist-header {
+            width: 100%;
+            height: 50px;
+            background-color: #3498db; 
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+            border-bottom: 4px solid #2980b9;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            height: 30px;
+            border: 2px solid #2980b9;
+            padding: 0 10px;
+            font-family: 'PixelFont', monospace;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #ecf0f1;
+            line-height: 26px;
+        }
+        
+        .search-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #3498db;
+            border: 2px solid #2980b9;
+            margin-left: -2px; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-icon::after {
+            content: "🔍"; 
+            font-size: 18px;
+            color: white;
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        /* ⭐️ 게임 아이템이 들어갈 컨텐츠 영역 (남은 공간 모두 사용) ⭐️ */
+        .gamelist-content {
+            width: 100%;
+            flex-grow: 1; 
+            background-color: transparent; 
+            padding: 40px 20px 20px 20px; 
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* ⭐️ 게임 목록 그리드 ⭐️ */
+        .game-grid {
+            display: flex;
+            gap: 20px; 
+            justify-content: center;
+            width: 100%;
+            max-width: 560px; 
+        }
+        
+        /* ⭐️ 개별 게임 아이템 ⭐️ */
+        .game-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none; 
+        }
+        
+        /* ⭐️ 게임 아이콘 이미지 스타일 ⭐️ */
+        .game-icon {
+            width: 150px;
+            height: 150px;
+            border: 4px solid black;
+            box-shadow: 6px 6px 0 #000000;
+            transition: transform 0.1s ease;
+        }
+        
+        .game-item:hover .game-icon {
+             transform: translateY(-2px); 
+        }
+        
+        /* ⭐️ 별점 컨테이너 스타일 ⭐️ */
+        .star-rating {
+            background-color: #8b4513; 
+            width: 158px; 
+            text-align: center;
+            padding: 5px 0;
+            margin-top: 10px;
+            border: 4px solid #555;
+            box-shadow: 4px 4px 0 #555;
+            color: yellow; 
+            font-size: 20px;
+        }
+        
+        /* ⭐️ 게임 장르/카테고리 스타일 ⭐️ */
+        .game-genre {
+            font-family: 'PixelFont', monospace;
+            font-size: 30px;
+            color: white;
+            text-shadow: 4px 4px 0 #000000; 
+            margin-top: 15px;
+            letter-spacing: -2px;
+        }
+        
+        /* ⭐️ HOME 버튼 컨테이너 ⭐️ */
+        .home-button-container {
+            margin-bottom: 25px; 
+            text-align: center;
+        }
+        
+        /* ⭐️ HOME 버튼 스타일: next-button 스타일 적용 ⭐️ */
+        .home-button {
+            display: block; 
+            width: 180px; 
+            height: 63px; 
+            line-height: 55px; 
+            background-color: #d89617;
+            color: white;
+            font-size: 37px; 
+            border: 4px solid #8b4513;
+            cursor: pointer;
+            text-shadow: 3px 3px 0 #8b4513;
+            box-shadow: 
+                -6px -6px 0 #ffe082 inset, 
+                 6px  6px 0 #8b4513 inset;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PixelFont', monospace; 
+            text-decoration: none; 
+        }
+        
+        .home-button:hover {
+            background-color: #e0ac42;
+        }
+        
+        .home-button:active {
+            box-shadow: 
+                -3px -3px 0 #ffe082 inset, 
+                 3px  3px 0 #8b4513 inset;
+            transform: translate(3px, 3px); 
+        }
     </style>
 </head>
 <body>
+    <div class="gamelist-window">
+        <div class="gamelist-header">
+            <input type="text" id="searchInput" class="search-input" placeholder="검색어를 입력하세요.">
+            <div id="searchIcon" class="search-icon"></div>
+        </div>
 
+        <div class="gamelist-content">
+            <div id="gameGrid" class="game-grid">
+                
+                <a href="../game/mole_game.html" class="game-item" data-name="두더지" data-genre="아케이드">
+                    <img src="두더지_아이콘.png" alt="두더지 게임 아이콘" class="game-icon">
+                    <div class="star-rating">⭐⭐</div>
+                    <div class="game-genre">아케이드</div>
+                </a>
+
+                <a href="../game/2048_game.html" class="game-item" data-name="2048" data-genre="퍼즐">
+                    <img src="2048_아이콘.png" alt="2048 게임 아이콘" class="game-icon">
+                    <div class="star-rating">⭐⭐</div>
+                    <div class="game-genre">퍼즐</div>
+                </a>
+                
+                <a href="../game/memory_game.html" class="game-item" data-name="메모리" data-genre="캐주얼">
+                    <img src="메모리_아이콘.png" alt="메모리 게임 아이콘" class="game-icon">
+                    <div class="star-rating">⭐⭐</div>
+                    <div class="game-genre">캐주얼</div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="home-button-container">
+            <a href="main_page_2.html" class="home-button">
+                HOME
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchIcon = document.getElementById('searchIcon');
+            const gameItems = document.querySelectorAll('.game-item'); 
+
+            function performSearch() {
+                const query = searchInput.value.trim().toLowerCase(); 
+
+                gameItems.forEach(item => {
+                    // data-name과 data-genre 속성 값을 사용하여 검색
+                    const gameName = item.getAttribute('data-name').toLowerCase();
+                    const gameGenre = item.getAttribute('data-genre').toLowerCase();
+                    
+                    // 게임 이름 또는 장르에 검색어가 포함되어 있는지 확인
+                    const isMatch = gameName.includes(query) || gameGenre.includes(query);
+
+                    // 일치 여부에 따라 아이템 표시/숨김
+                    // display: flex;는 원래 .game-item의 스타일입니다.
+                    item.style.display = isMatch ? 'flex' : 'none';
+                });
+            }
+            
+            // 검색 아이콘 클릭 이벤트
+            searchIcon.addEventListener('click', performSearch);
+            
+            // Enter 키 입력 이벤트
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

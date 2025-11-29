@@ -6,62 +6,56 @@
     <title>카드 짝 맞추기 게임</title>
     <style>
         /* -------------------------------------------
-        * 1. CSS (스타일)
+        * 1. CSS (스타일) - 폰트 적용 및 그리드 설정
         * ------------------------------------------- */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('DungGeunMo.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
         body {
+            margin: 0;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            /* 🚩 [수정] 새로운 배경 이미지 적용 */
+            /* 배경 이미지 설정 */
             background-image: url('memorygame배경.png'); 
             background-size: cover;
             background-position: center;
+            /* 🚩 수정: 모든 글씨에 PixelFont 적용 */
+            font-family: 'PixelFont', Arial, sans-serif; 
+            overflow: hidden;
             background-repeat: no-repeat;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden; /* 스크롤바 방지 */
+            background-size: 60% auto;
+            background-color: #87CEEB;
         }
 
         .game-container {
-            background-color: rgba(255, 255, 255, 0.9); /* 배경 불투명도 약간 추가 */
+            background-color: rgba(255, 255, 255, 0.5);
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
-            position: relative; /* 제목 로고의 absolute 기준 */
-        }
-
-        /* 🚩 [수정] h1 대신 이미지 로고 사용 */
-        /* h1 {
-            color: #3f51b5;
-            margin-bottom: 20px;
-        } */
-
-        /* 🚩 [추가] 제목 로고 이미지 스타일 */
-        .game-title-logo {
-            width: 80%; /* 컨테이너 폭의 80% */
-            max-width: 350px; /* 최대 크기 지정 */
-            height: auto;
-            margin-bottom: 20px;
-            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
+            position: relative;
         }
 
         .info-board {
-            font-size: 1.2em;
-            color: #555;
+            font-size: 35px;
+            color: #333;
             margin-bottom: 20px;
-            font-weight: bold;
+            font-weight: bold; /* 폰트 적용 후 굵기 초기화 */
         }
 
         .memory-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4x4 격자 */
-            grid-gap: 10px;
-            width: 400px;
-            height: 400px;
-            perspective: 1000px; /* 3D 효과를 위한 원근감 설정 */
+            grid-template-columns: repeat(5, 1fr); 
+            grid-gap: 15px;
+            width: 550px;
+            height: 670px;
+            perspective: 1000px; 
         }
 
         /* 카드 자체 (뒷면 이미지/크기/3D 효과 포함) */
@@ -101,68 +95,68 @@
             position: absolute;
             border-radius: 5px;
             background-size: cover;
-            backface-visibility: hidden; /* 뒤집힐 때 뒷면이 보이지 않도록 함 */
+            backface-visibility: hidden;
         }
 
-        /* 🚩 [수정] 새로운 카드 뒷면 이미지 적용 */
+        /* 카드 뒷면 이미지 적용 */
         .back-face {
-            background-image: url('memorygame카드 뒷면.png'); /* 새로운 뒷면 이미지 */
-            background-color: #7986cb; /* 뒷면 배경색 */
+            background-image: url('memorygame카드 뒷면.png');
+            background-color: #7986cb;
             border: 3px solid #3f51b5;
         }
 
-        /* 🚩 카드 앞면: 이미지는 JS에서 설정 */
+        /* 카드 앞면: 이미지는 JS에서 설정 */
         .front-face {
-            transform: rotateY(180deg); /* 앞면은 처음부터 뒤집혀 있어야 함 */
+            transform: rotateY(180deg);
             background-color: #f1f1f1;
             border: 3px solid #4CAF50;
         }
 
-        /* 팝업 스타일 (두더지 게임과 동일) */
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0s, opacity 0.3s linear;
-            z-index: 100;
-        }
-        .popup.show {
+        /* 👇 게임 오버 오버레이 스타일 👇 */
+		.game-over-overlay {
+		    position: fixed;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%, -50%); 
+		    
+		    width: 80%; 
+		    height: 80%;
+		    
+		    background-image: url('게임오버_배경X.png');
+		    background-size: cover;
+		    background-position: center;
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: center;
+		    align-items: center;
+		    cursor: pointer;
+		    visibility: hidden;
+		    opacity: 0;
+		    transition: opacity 0.5s ease;
+		    z-index: 100;
+		    color: white;
+		    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 명시적 적용 (body 상속되지만 안전을 위해) */
+		}
+        .game-over-overlay.show {
             visibility: visible;
             opacity: 1;
         }
-        .popup-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+
+        .game-over-message {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: normal; /* 폰트 적용 후 굵기 초기화 */
         }
-        .popup-content button {
-            background-color: #ff9800;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-        .popup-content button:hover {
-            background-color: #fb8c00;
+        .game-over-sub-message {
+            font-size: 1.5em;
+            margin-top: 10px;
+            font-weight: normal; /* 폰트 적용 후 굵기 초기화 */
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <img src="memorygametitle.png" alt="Memory Game Title" class="game-title-logo">
         
         <div class="info-board">
             뒤집은 횟수: <span id="moves">0</span>회
@@ -171,32 +165,38 @@
             </div>
     </div>
 
+    <div class="game-over-overlay" id="game-over-overlay">
+        <div class="game-over-message" id="final-score-message"></div>
+        <div class="game-over-sub-message">아무 곳이나 클릭하면 다음 페이지로 이동합니다.</div>
+    </div>
+
     <script>
         /* -------------------------------------------
-        * 2. JavaScript (게임 로직) - 변경 없음 (이미지 경로만 주의)
+        * 2. JavaScript (게임 로직) - 다음 페이지 이동 로직
         * ------------------------------------------- */
         document.addEventListener('DOMContentLoaded', () => {
             const memoryBoard = document.getElementById('memory-board');
             const movesDisplay = document.getElementById('moves');
+            const gameOverOverlay = document.getElementById('game-over-overlay');
+            const finalScoreMessage = document.getElementById('final-score-message');
             
-            // 🚩 [경로 확인] 8가지 카드 앞면 이미지 목록
-            // 실제 이미지 파일 경로와 일치하는지 확인하세요!
+            // 🚩 13가지 카드 앞면 이미지 목록 (13개 x 2 = 26장)
             const cardImages = [
-                'card_1.png', 'card_2.png', 'card_3.png', 'card_4.png', 
-                'card_5.png', 'card_6.png', 'card_7.png', 'card_8.png'
+            	'스페이드2.png', '스페이드3.png', '스페이드4.png', '스페이드5.png', 
+                '스페이드9.png', '스페이드8.png', '스페이드7.png', '스페이드6.png',
+                '스페이드10.png','스페이드a.png','스페이드J.png','스페이드Q.png',
+                '스페이드K.png'
             ];
 
-            let hasFlippedCard = false; // 첫 번째 카드 뒤집힘 여부
-            let lockBoard = false; // 카드 클릭 잠금 여부 (두 카드 확인 중)
-            let firstCard, secondCard; // 뒤집힌 두 카드
-            let moves = 0; // 뒤집은 횟수
+            let hasFlippedCard = false;
+            let lockBoard = false;
+            let firstCard, secondCard;
+            let moves = 0;
 
             // 1. 카드 데이터 생성 및 섞기
             function createCards() {
-                // 8개 이미지 x 2 (짝을 만들기 위해) = 16개의 카드 이미지 경로
                 const cardsArray = [...cardImages, ...cardImages];
                 
-                // Fisher-Yates 셔플 알고리즘으로 배열 섞기
                 for (let i = cardsArray.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [cardsArray[i], cardsArray[j]] = [cardsArray[j], cardsArray[i]];
@@ -212,22 +212,18 @@
                 shuffledCards.forEach(imageName => {
                     const card = document.createElement('div');
                     card.classList.add('memory-card');
-                    card.setAttribute('data-image', imageName); // 짝을 맞추기 위한 식별자
+                    card.setAttribute('data-image', imageName);
 
-                    // 카드 앞면 (이미지)
                     const frontFace = document.createElement('div');
                     frontFace.classList.add('front-face');
-                    // 🚩 [경로 설정] 앞면 이미지 경로
                     frontFace.style.backgroundImage = `url('images/${imageName}')`;
                     
-                    // 카드 뒷면
                     const backFace = document.createElement('div');
                     backFace.classList.add('back-face');
                     
                     card.appendChild(frontFace);
                     card.appendChild(backFace);
                     
-                    // 클릭 이벤트 연결
                     card.addEventListener('click', flipCard); 
 
                     memoryBoard.appendChild(card);
@@ -236,19 +232,17 @@
 
             // 3. 카드 뒤집기 함수
             function flipCard() {
-                if (lockBoard) return; // 카드 확인 중에는 클릭 무시
-                if (this === firstCard) return; // 같은 카드를 두 번 클릭하는 것 방지
+                if (lockBoard) return;
+                if (this === firstCard) return;
 
-                this.classList.add('flip'); // 카드 뒤집기 CSS 클래스 추가
+                this.classList.add('flip');
 
                 if (!hasFlippedCard) {
-                    // 첫 번째 카드
                     hasFlippedCard = true;
                     firstCard = this;
                     return;
                 }
                 
-                // 두 번째 카드
                 secondCard = this;
                 moves++;
                 movesDisplay.textContent = moves;
@@ -261,36 +255,33 @@
                 let isMatch = firstCard.getAttribute('data-image') === secondCard.getAttribute('data-image');
                 
                 if (isMatch) {
-                    // 짝이 맞으면
                     disableCards();
                 } else {
-                    // 짝이 틀리면
                     unflipCards();
                 }
             }
 
-            // 5. 짝이 맞았을 때 (카드 제거/고정)
+            // 5. 짝이 맞았을 때
             function disableCards() {
                 firstCard.removeEventListener('click', flipCard);
                 secondCard.removeEventListener('click', flipCard);
                 
-                // 맞은 카드에 시각적 효과 부여
                 firstCard.classList.add('match');
                 secondCard.classList.add('match');
 
                 resetBoard();
-                checkWin(); // 승리 조건 확인
+                checkWin();
             }
 
-            // 6. 짝이 틀렸을 때 (카드 다시 뒤집기)
+            // 6. 짝이 틀렸을 때
             function unflipCards() {
-                lockBoard = true; // 카드 뒤집히는 동안 클릭 잠금
+                lockBoard = true;
 
                 setTimeout(() => {
                     firstCard.classList.remove('flip');
                     secondCard.classList.remove('flip');
                     resetBoard();
-                }, 1000); // 1초 후에 다시 뒤집음
+                }, 1000);
             }
 
             // 7. 보드 상태 초기화
@@ -301,37 +292,30 @@
             
             // 8. 승리 조건 확인
             function checkWin() {
-                // 뒤집히지 않은 카드가 없으면 승리
                 const flippedCards = document.querySelectorAll('.memory-card:not(.match)').length;
                 if (flippedCards === 0) {
-                    showPopup(`축하합니다! ${moves}번 만에 모든 짝을 맞췄어요! 🏆`);
+                    showGameOverScreen(`축하합니다! ${moves}번 만에 모든 짝을 맞췄어요!`);
                 }
             }
             
-            // 9. 팝업 표시 함수
-            function showPopup(message) {
-                let popup = document.getElementById('game-end-popup');
-                if (!popup) {
-                    popup = document.createElement('div');
-                    popup.id = 'game-end-popup';
-                    popup.classList.add('popup');
-                    popup.innerHTML = `
-                        <div class="popup-content">
-                            <h2>게임 성공!</h2>
-                            <p id="final-score-message">${message}</p>
-                            <button id="restart-button">다시 시작</button>
-                        </div>
-                    `;
-                    document.body.appendChild(popup);
+            // 9. 게임 오버 화면 표시 함수
+            function showGameOverScreen(message) {
+                finalScoreMessage.textContent = message;
+                
+                gameOverOverlay.classList.add('show');
+                
+                // 클릭 이벤트 리스너 추가 (클릭 시 다음 페이지로 이동)
+                gameOverOverlay.addEventListener('click', function nextPageHandler() {
+                    
+                    // 🚩 다음 페이지 URL을 여기에 입력하세요.
+                    window.location.href = 'memory_gameover.html'; 
 
-                    document.getElementById('restart-button').addEventListener('click', () => {
-                        popup.classList.remove('show');
-                        startGame();
-                    });
-                } else {
-                    document.getElementById('final-score-message').textContent = message;
-                }
-                popup.classList.add('show');
+                    // 이벤트 리스너 제거
+                    gameOverOverlay.removeEventListener('click', nextPageHandler); 
+                });
+                
+                // 보드 위에 있는 게임 요소들 클릭 방지
+                memoryBoard.style.pointerEvents = 'none';
             }
 
             // 10. 게임 시작/초기화 함수
@@ -340,6 +324,9 @@
                 movesDisplay.textContent = moves;
                 resetBoard();
                 generateBoard();
+                
+                // 게임 시작 시 보드 클릭 다시 활성화
+                memoryBoard.style.pointerEvents = 'auto'; 
             }
 
             // 초기화

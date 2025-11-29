@@ -8,7 +8,7 @@
         /* 1. 폰트 등록: DungGeunMo.ttf 파일 적용 */
         @font-face {
             font-family: 'PixelFont'; 
-            src: url('../DungGeunMo.ttf') format('truetype'); /* 폰트 파일 경로 지정 */
+            src: url('../DungGeunMo.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
@@ -25,14 +25,13 @@
             background-position: center;
             font-family: Arial, sans-serif;
             overflow: hidden;
-            background-repeat: no-repeat; /* 이미지가 너무 작을 경우 반복되지 않도록 설정 */
+            background-repeat: no-repeat;
     		background-size: 60% auto;
     		background-color: #87CEEB;
         }
 
         .container {
             position: relative;
-            /* 배경 이미지와 동일한 비율로 조정 (화면 중앙에 내용 정렬) */
             width: 800px; 
             height: 600px; 
             display: flex;
@@ -44,7 +43,7 @@
 
         /* 2. MINI GAME 제목 이미지 스타일 */
         .game-title-image {
-            width: 400px; /* 이미지 파일의 실제 크기에 맞게 조정 */
+            width: 400px;
             height: auto; 
             margin-bottom: 50px; 
             z-index: 10;
@@ -57,6 +56,9 @@
             padding: 20px;
             text-align: center;
             z-index: 5;
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
         }
 
         .input-area {
@@ -72,7 +74,7 @@
             height: 30px;
             background-color: #8b4513; 
             color: white;
-            font-family: 'PixelFont', monospace; /* 폰트 적용 */
+            font-family: 'PixelFont', monospace;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -92,7 +94,7 @@
             border: 2px solid #555;
             border-left: none;
             background-color: rgba(255, 255, 255, 0.7);
-            font-family: 'PixelFont', monospace; /* 폰트 적용 */
+            font-family: 'PixelFont', monospace;
             font-size: 16px;
             box-shadow: 
                 -2px -2px 0 #aaa inset, 
@@ -103,15 +105,13 @@
             color: #777;
         }
 
-		       /* 4. LOGIN 버튼 스타일 및 폰트 적용 */
+		/* 4. LOGIN 버튼 스타일 및 폰트 적용 */
 		.login-button {
 		    width: 90px;
 		    height: 80px;
-		    /* 👇 이 두 속성을 수정합니다. */
-		    margin-left: -5px; /* 가로 간격을 없애 입력 필드에 붙입니다. */
+		    margin-left: -5px; 
 		    position: relative;
-   		 	top: -8px; 
-		    /* ---------------------------------- */
+   		 	top: -10px; 
 		    background-color: #d89617; 
 		    color: white;
 		    font-family: 'PixelFont', monospace; 
@@ -145,15 +145,40 @@
             color: #fff; 
             text-decoration: none;
             margin: 0 5px;
-            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 적용 */
+            font-family: 'PixelFont', Arial, sans-serif;
             text-shadow: 1px 1px 0 #333;
         }
 
         .aux-links a:hover {
             color: #d89617; 
         }
+        
+        /* ⭐️ 수정: 에러 메시지 스타일 (둥근 모서리 추가) ⭐️ */
+        .error-message {
+            min-height: 30px; 
+            line-height: 30px; 
+            width: 100%; 
+            max-width: 380px;
+            box-sizing: border-box;
+            
+            background-color: #dc3545; 
+            color: white; 
+            
+            font-family: 'PixelFont', monospace;
+            font-size: 16px;
+            margin-top: 10px;
+            padding: 0 10px;
+            text-align: center;
+            border: 2px solid #8b0000; 
+            text-shadow: 1px 1px 0 #000;
+            
+            /* ⭐️ 추가된 부분: 모서리를 둥글게 처리 ⭐️ */
+            border-radius: 5px; 
+            
+            visibility: hidden; 
+        }
     </style>
-</head>
+    </head>
 <body>
     <div class="container">
         <img 
@@ -163,23 +188,27 @@
         >
         
         <div class="login-box">
-            <div style="display: flex; justify-content: center; align-items: flex-end;">
-                <div style="margin-right: 10px;">
-                    <div class="input-area">
-                        <div class="input-label">ID</div>
-                        <input type="text" class="input-field" placeholder="ID">
+            <form action="/team_project/login" method="POST"> 
+                <div style="display: flex; justify-content: center; align-items: flex-end;">
+                    <div style="margin-right: 10px;">
+                        <div class="input-area">
+                            <div class="input-label">ID</div>
+                            <input type="text" class="input-field" name="loginId" placeholder="ID" required>
+                        </div>
+                        <div class="input-area">
+                            <div class="input-label">PASSWORD</div>
+                            <input type="password" class="input-field" name="password" placeholder="password" required>
+                        </div>
                     </div>
-                    <div class="input-area">
-                        <div class="input-label">PASSWORD</div>
-                        <input type="password" class="input-field" placeholder="password">
-                    </div>
+                    
+                    <button type="submit" class="login-button">
+                        LOGIN
+                    </button>
                 </div>
-                
-                <button class="login-button">
-                    LOGIN
-                </button>
-            </div>
-
+            </form>
+            
+            <div id="loginError" class="error-message"></div>
+            
             <div class="aux-links">
                 <a href="../resister/resister_agreement.html">회원가입</a>
                 <a href="../find/findID.html">ID 찾기</a>
@@ -187,5 +216,28 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorElement = document.getElementById('loginError');
+
+            if (error === 'invalid') {
+                errorElement.textContent = 'ID 또는 비밀번호가 일치하지 않습니다.';
+                errorElement.style.visibility = 'visible'; // 메시지 표시
+            } else if (error === 'sessionExpired') {
+                errorElement.textContent = '세션이 만료되었거나 로그인되어 있지 않습니다. 다시 로그인해주세요.';
+                errorElement.style.visibility = 'visible'; // 메시지 표시
+            } else {
+                 errorElement.style.visibility = 'hidden'; // 에러가 없으면 숨김
+            }
+            
+            if (error) {
+                const cleanUrl = window.location.pathname;
+                history.replaceState(null, '', cleanUrl);
+            }
+        });
+    </script>
 </body>
 </html>

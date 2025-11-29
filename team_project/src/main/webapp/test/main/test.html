@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINI GAME 로그인</title>
+    <style>
+        /* 1. 폰트 등록: DungGeunMo.ttf 파일 적용 */
+        @font-face {
+            font-family: 'PixelFont'; 
+            src: url('../DungGeunMo.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 배경 이미지 설정 */
+            background-image: url('../bgimg/game_배경.png'); 
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-repeat: no-repeat;
+    		background-size: 60% auto;
+    		background-color: #87CEEB;
+        }
+
+        .container {
+            position: relative;
+            width: 800px; 
+            height: 600px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            padding-top: 50px; 
+        }
+
+        /* 2. MINI GAME 제목 이미지 스타일 */
+        .game-title-image {
+            width: 400px;
+            height: auto; 
+            margin-bottom: 50px; 
+            z-index: 10;
+        }
+
+        /* 로그인 폼 컨테이너 */
+        .login-box {
+            position: relative;
+            width: 400px;
+            padding: 20px;
+            text-align: center;
+            z-index: 5;
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* ID/PASSWORD 라벨 스타일 */
+        .input-label {
+            width: 100px;
+            height: 30px;
+            background-color: #8b4513; 
+            color: white;
+            font-family: 'PixelFont', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #555;
+            border-right: none;
+            font-size: 14px;
+            box-shadow: 
+                -2px -2px 0 #d89617 inset, 
+                 2px  2px 0 #555 inset; 
+        }
+
+        /* 3. 입력 필드 스타일 및 폰트 적용 */
+        .input-field {
+            width: 200px;
+            height: 30px;
+            padding: 0 10px;
+            border: 2px solid #555;
+            border-left: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            font-family: 'PixelFont', monospace;
+            font-size: 16px;
+            box-shadow: 
+                -2px -2px 0 #aaa inset, 
+                 2px  2px 0 #fff inset; 
+        }
+
+        .input-field::placeholder {
+            color: #777;
+        }
+
+		/* 4. LOGIN 버튼 스타일 및 폰트 적용 */
+		.login-button {
+		    width: 90px;
+		    height: 80px;
+		    margin-left: -5px; 
+		    position: relative;
+   		 	top: -10px; 
+		    background-color: #d89617; 
+		    color: white;
+		    font-family: 'PixelFont', monospace; 
+		    font-size: 20px;
+		    border: 4px solid #8b4513; 
+		    cursor: pointer;
+		    text-shadow: 2px 2px 0 #8b4513;
+		    box-shadow: 
+		        -4px -4px 0 #ffe082 inset, 
+		         4px  4px 0 #8b4513 inset; 
+		    line-height: 1;
+		    padding-top: 5px;
+		    box-sizing: border-box;
+		    flex-shrink: 0;
+		}
+
+        .login-button:hover {
+            background-color: #e0ac42;
+        }
+
+        /* 5. 보조 링크 스타일 및 폰트 적용 */
+        .aux-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            width: 380px; 
+            font-size: 14px;
+        }
+
+        .aux-links a {
+            color: #fff; 
+            text-decoration: none;
+            margin: 0 5px;
+            font-family: 'PixelFont', Arial, sans-serif;
+            text-shadow: 1px 1px 0 #333;
+        }
+
+        .aux-links a:hover {
+            color: #d89617; 
+        }
+        
+        /* ⭐️ 추가: 에러 메시지 스타일 ⭐️ */
+        .error-message {
+            color: #ff0000; /* 빨간색 텍스트 */
+            font-family: 'PixelFont', monospace;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+            text-shadow: 1px 1px 0 #000; /* 가독성을 위한 그림자 */
+        }
+    </style>
+    </head>
+<body>
+    <div class="container">
+        <img 
+            src="../bgimg/minigame_배경X.png" 
+            alt="MINI GAME" 
+            class="game-title-image"
+        >
+        
+        <div class="login-box">
+            <form action="/team_project/login" method="POST"> 
+                <div style="display: flex; justify-content: center; align-items: flex-end;">
+                    <div style="margin-right: 10px;">
+                        <div class="input-area">
+                            <div class="input-label">ID</div>
+                            <input type="text" class="input-field" name="loginId" placeholder="ID" required>
+                        </div>
+                        <div class="input-area">
+                            <div class="input-label">PASSWORD</div>
+                            <input type="password" class="input-field" name="password" placeholder="password" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-button">
+                        LOGIN
+                    </button>
+                </div>
+            </form>
+            
+           
+            
+            <div class="aux-links">
+                <a href="../resister/resister_agreement.html">회원가입</a>
+                <a href="../find/findID.html">ID 찾기</a>
+                <a href="../find/findPW.html">비밀번호 찾기</a>
+            </div>
+             <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL에서 쿼리 파라미터(error) 값을 가져옵니다.
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorElement = document.getElementById('loginError');
+
+            if (error === 'invalid') {
+                errorElement.textContent = 'ID 또는 비밀번호가 일치하지 않습니다.';
+            } else if (error === 'sessionExpired') {
+                errorElement.textContent = '세션이 만료되었거나 로그인되어 있지 않습니다. 다시 로그인해주세요.';
+            }
+            
+            if (error) {
+                // 현재 URL에서 error 파라미터를 제거합니다.
+                const cleanUrl = window.location.pathname;
+                history.replaceState(null, '', cleanUrl);
+            }
+        });
+    </script>
+</body>
+</html>
