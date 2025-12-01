@@ -16,6 +16,7 @@
         <jakarta.mail.version>2.0.1</jakarta.mail.version> 
         <jakarta.activation.version>2.1.2</jakarta.activation.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
+        <jackson.version>2.17.0</jackson.version>
     </properties>
 
     <dependencies>
@@ -31,18 +32,24 @@
             <artifactId>jakarta.mail</artifactId>
             <version>${jakarta.mail.version}</version>
         </dependency>
-      <dependency>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-          <version>2.1.2</version>
-      </dependency>        
-
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.1.2</version>
+        </dependency>        
 
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.connector.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
     </dependencies>
     
     <build>

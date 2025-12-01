@@ -8,7 +8,7 @@
         /* 폰트 등록 */
         @font-face {
             font-family: 'PixelFont'; 
-            src: url('DungGeunMo.ttf') format('truetype'); 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
             font-weight: normal;
             font-style: normal;
         }
@@ -20,10 +20,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: url('memorygame배경.png'); 
+            background-image: url('memory_img/memorygame배경.png'); 
             background-size: cover;
             background-position: center;
-            font-family: 'PixelFont', Arial, sans-serif; /* 폰트 적용 */
+            font-family: 'PixelFont', Arial, sans-serif;
             overflow: hidden;
             background-repeat: no-repeat;
             background-size: 60% auto;
@@ -42,9 +42,7 @@
             font-family: 'PixelFont', monospace;
         }
 
-
         .register-window {
-            /* 크기 확대 */
             width: 700px; 
             height: 500px; 
             background-color: rgba(0, 0, 0, 0.8);
@@ -55,7 +53,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
             padding: 20px;
             box-sizing: border-box;
-            margin-bottom: 20px; /* 🚩 버튼과의 간격 확보 */
+            margin-bottom: 20px;
         }
 
         /* 타이틀 바 */
@@ -76,40 +74,77 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 30px; 
+            padding-top: 10px;
             justify-content: flex-start; 
         }
 
-        /* 문장만 표시하는 영역 스타일 */
-        .input-field-container {
-            display: flex;
-            align-items: center;
-            margin: 15px 0 20px; 
-            width: 90%; 
-            justify-content: center; 
-            max-width: none;
+        /* -------------------------------------------
+        * 랭킹 테이블 스타일 
+        * ------------------------------------------- */
+        #ranking-list {
+            width: 90%;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 25px;
+            color: white;
+            table-layout: fixed;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 10px 5px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        .ranking-table th {
+            background-color: #5a5a5a;
+            border-bottom: 3px solid #8b4513;
+            font-weight: bold;
+        }
+
+        .ranking-table tr:nth-child(odd) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 1등 특별 강조 */
+        .ranking-table tr:nth-child(2) {
+            color: gold;
+            font-size: 28px;
+            text-shadow: 2px 2px 0 #8b4513;
+        }
+
+        /* 칼럼별 너비 지정 */
+        .ranking-table col:nth-child(1) { width: 15%; }
+        .ranking-table col:nth-child(2) { width: 55%; }
+        .ranking-table col:nth-child(3) { width: 30%; }
+
+        /* 로딩 메시지 스타일 */
+        #ranking-status {
             color: white;
             font-size: 30px;
-            text-align: center;
-            line-height: 1.5; 
-            
+            margin-top: 50px;
         }
         
         /* -------------------------------------------
-        * 🚩 푸터 버튼 영역 (양 끝 배치)
+        * 푸터 버튼 영역 (양 끝 배치)
         * ------------------------------------------- */
         .buttons-footer {
-            /* .register-window의 너비에 맞게 설정 */
             width: 700px; 
             display: flex;
-            justify-content: space-between; /* 🚩 양 끝에 버튼 배치 */
-            padding: 0 20px; /* 컨테이너 내부 여백과 맞춤 */
+            justify-content: space-between;
+            padding: 0 20px;
             box-sizing: border-box;
         }
 
         /* 버튼 기본 스타일 */
         .next-button {
-            width: 250px; /* 🚩 양 끝 배치를 위해 크기 조정 */
+            width: 250px;
             height: 75px; 
             margin: 0; 
             background-color: #d89617;
@@ -142,13 +177,9 @@
             <div class="title-bar">MEMORY GAME RANKING</div>
 
             <div class="content-area">
-                <div class="input-field-container">
-                    메모리 게임 랭킹
+                <div id="ranking-list">
+                    <p id="ranking-status">랭킹 로딩 중...</p>
                 </div>
-                
-                <div id="idDisplay"></div>
-                
-                
             </div>
         </div>
         
@@ -162,6 +193,70 @@
         document.addEventListener('DOMContentLoaded', () => {
             const menuButton = document.getElementById('menu-button');
             const startButton = document.getElementById('start-button');
+            const rankingListDiv = document.getElementById('ranking-list');
+            
+            // 랭킹 데이터를 서버에서 가져와 표시하는 함수
+            function fetchAndDisplayRanking() {
+                const apiUrl = '/team_project/api/memoryRanking'; // ⭐️ 서블릿 URL
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(rankingData => {
+                        if (rankingData.length === 0) {
+                            rankingListDiv.innerHTML = '<p id="ranking-status">아직 등록된 랭킹이 없습니다.</p>';
+                            return;
+                        }
+                        
+                        // 랭킹 테이블 생성
+                        let tableHTML = `
+                            <table class="ranking-table">
+                                <colgroup>
+                                    <col>
+                                    <col>
+                                    <col>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>순위</th>
+                                        <th>닉네임</th>
+                                        <th>점수</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        rankingData.forEach((entry, index) => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${entry.rank}</td>
+                                    <td>${entry.nickname}</td>
+                                    <td>${entry.score}</td>
+                                </tr>
+                            `;
+                        });
+
+                        tableHTML += `
+                                </tbody>
+                            </table>
+                        `;
+                        
+                        rankingListDiv.innerHTML = tableHTML;
+
+                    })
+                    .catch(error => {
+                        console.error('랭킹 데이터 로드 중 오류 발생:', error);
+                        rankingListDiv.innerHTML = `<p id="ranking-status">랭킹을 불러오는 데 실패했습니다. (${error.message})</p>`;
+                    });
+            }
+
+            // 페이지 로드 시 랭킹 불러오기
+            fetchAndDisplayRanking();
+
 
             // 🚩 MENU 버튼 클릭 시 메인 화면으로 이동
             menuButton.addEventListener('click', () => {

@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카드 짝 맞추기 게임 - 스코어 및 버튼 (최종)</title>
     <style>
-        /* -------------------------------------------
-        * 1. CSS (스타일) - 폰트, 구조 정의
-        * ------------------------------------------- */
+        /* ... (CSS 스타일 코드 생략) ... */
         @font-face {
             font-family: 'PixelFont'; 
-            src: url('DungGeunMo.ttf') format('truetype'); 
+            src: url('../DungGeunMo.ttf') format('truetype'); 
             font-weight: normal;
             font-style: normal;
         }
@@ -22,7 +20,7 @@
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            background-image: url('memorygame배경.png'); 
+            background-image: url('memory_img/memorygame배경.png'); 
             background-size: cover;
             background-position: center;
             font-family: 'PixelFont', Arial, sans-serif;
@@ -32,49 +30,49 @@
             background-color: #87CEEB;
         }
 
-        /* -------------------------------------------
-        * 🚩 1. 스코어 배경 이미지 영역 (가장 위에 배치)
-        * ------------------------------------------- */
         .score-display-area {
-            /* score_배경X.png 크기 확대 및 배치 */
             width: 580px; 
             height: 160px;
-            background-image: url('score_배경X.png');
+            background-image: url('memory_img/score_배경X.png');
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
-            
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
             border-radius: 10px; 
-            margin-bottom: 20px; /* 갈색 컨테이너와의 간격 */
+            margin-bottom: 20px;
+        }
+
+        #high-score-display {
+            color: #ff9800;
+            font-size: 28px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0 #000000;
+        }
+
+        #status-message {
+            position: static; 
+            transform: none;
+            color: white;
+            font-size: 32px;
+            text-shadow: 3px 3px 0 #8b4513;
         }
         
-        /* -------------------------------------------
-        * 🚩 2. 갈색 컨테이너 (스코어 숫자를 감쌈)
-        * ------------------------------------------- */
         .game-container {
-            /* 갈색 배경, 둥근 모서리, 그림자 */
             background-color: rgba(130, 67, 33, 0.9);
-            padding: 20px 40px; /* 넉넉한 패딩 */
+            padding: 20px 40px;
             border-radius: 20px; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            
-            /* 스코어 값 중앙 정렬을 위한 설정 */
             display: flex; 
             justify-content: center;
             align-items: center;
-            
-            /* 스코어 배경 아래에 배치 */
             margin-bottom: 40px; 
             position: relative;
         }
 
-        /* -------------------------------------------
-        * 3. 스코어 값 (갈색 컨테이너 안에 위치)
-        * ------------------------------------------- */
         .score-value {
             color: #ffe082;
             font-size: 80px; 
@@ -84,9 +82,6 @@
             z-index: 2; 
         }
 
-        /* -------------------------------------------
-        * 4. 버튼 영역 (갈색 컨테이너 밑)
-        * ------------------------------------------- */
         .buttons-container {
             display: flex;
             gap: 20px; 
@@ -116,18 +111,17 @@
             background-color: #e0ac42;
         }
 
-        /* 사용되지 않는 스타일 숨김 */
         .info-board, .memory-board { display: none; }
-        
     </style>
 </head>
 <body>
     
     <div class="score-display-area">
-        </div>
+
+    </div>
 
     <div class="game-container">
-        <span class="score-value" id="current-score">15000</span> 
+        <span class="score-value" id="current-score">0</span> 
     </div>
 
     <div class="buttons-container">
@@ -139,11 +133,87 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
+            const scoreDisplay = document.getElementById('current-score');
+            const statusMessage = document.getElementById('status-message');
+            const highScoreDisplay = document.getElementById('high-score-display');
+            
+            // 1. URL 파라미터에서 score 추출
+            const urlParams = new URLSearchParams(window.location.search);
+            const score = urlParams.get('score');
+            
+            let finalScore = 0;
+
+            if (score && !isNaN(parseInt(score))) {
+                finalScore = parseInt(score);
+                // ⭐️ URL에서 받은 점수를 바로 화면에 표시 (최근 점수) ⭐️
+                scoreDisplay.textContent = finalScore; 
+                
+                // 2. 서버에 스코어 저장 요청
+                sendScoreToServer(finalScore);
+                
+            } else {
+                scoreDisplay.textContent = 'N/A';
+                statusMessage.textContent = '점수를 찾을 수 없습니다.';
+                highScoreDisplay.textContent = '최고 기록: --';
+            }
+
+            /**
+             * 서버 API에 POST 요청을 보내 점수를 저장하고 최고 점수 데이터를 받아옵니다.
+             */
+            function sendScoreToServer(score) {
+                const scoreSaveApiUrl = '/team_project/api/saveScore'; 
+                const isMemoryGame = true; // 현재 페이지는 메모리 게임 전용
+
+                fetch(scoreSaveApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ score: score }) 
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        highScoreDisplay.textContent = '최고 기록: --';
+                        return { success: false, message: "로그인이 필요합니다." };
+                    }
+                    if (!response.ok) {
+                        return response.json().catch(() => ({ 
+                            success: false, 
+                            message: `서버 오류 발생 (${response.status})` 
+                        }));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // ⭐️ 서버에서 받은 데이터로 최고 기록 업데이트 ⭐️
+                        highScoreDisplay.textContent = `최고 기록: ${data.highScore}`;
+                        
+                        if (data.updated) {
+                            statusMessage.textContent = "⭐️ 최고 기록 갱신! ⭐️";
+                        } else {
+                            // 메모리 게임 (낮을수록 좋음)일 때, 현재 점수가 최고 기록보다 크면 (나쁘면) 메시지 표시
+                            if (isMemoryGame && data.currentScore > data.highScore) {
+                                statusMessage.textContent = "저장 완료 (아쉽지만 최고 기록은 그대로)";
+                            } else {
+                                statusMessage.textContent = "스코어 저장 완료";
+                            }
+                        }
+                    } else {
+                        statusMessage.textContent = "저장 실패: " + data.message;
+                        highScoreDisplay.textContent = '최고 기록: --';
+                    }
+                })
+                .catch(error => {
+                    console.error('스코어 저장 중 네트워크 오류:', error);
+                    statusMessage.textContent = '네트워크 오류로 저장 실패';
+                    highScoreDisplay.textContent = '최고 기록: --';
+                });
+            }
+
+
+            // 🚩 버튼 클릭 이벤트 리스너 설정
             const menuButton = document.getElementById('menu-button');
             const retryButton = document.getElementById('retry-button');
             const homeButton = document.getElementById('home-button');
-
-            // 🚩 버튼 클릭 이벤트 리스너 설정
             
             menuButton.addEventListener('click', () => {
                 window.location.href = 'memory_gamestart.html'; 
@@ -154,7 +224,7 @@
             });
 
             homeButton.addEventListener('click', () => {
-                window.location.href = 'home_page.html'; 
+                window.location.href = '../main/main_page_2.html'; 
             });
 
         });
