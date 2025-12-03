@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카드 짝 맞추기 게임</title>
     <style>
-        /* ... (CSS 생략, 원본과 동일) ... */
         @font-face {
             font-family: 'PixelFont'; 
             src: url('../DungGeunMo.ttf') format('truetype'); 
@@ -55,7 +54,7 @@
             height: 670px;
             perspective: 1000px; 
         }
-        /* ... (카드 스타일 생략) ... */
+        
         .memory-card {
             width: 100%;
             height: 100%;
@@ -149,7 +148,7 @@
     <div class="game-container">
         
         <div class="info-board">
-            뒤집은 횟수: <span id="moves">0</span>회
+            뒤집 은 횟수: <span id="moves">0</span>회
         </div>
         <div class="memory-board" id="memory-board">
             </div>
@@ -161,187 +160,190 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const memoryBoard = document.getElementById('memory-board');
-            const movesDisplay = document.getElementById('moves');
-            const gameOverOverlay = document.getElementById('game-over-overlay');
-            const finalScoreMessage = document.getElementById('final-score-message');
+    document.addEventListener('DOMContentLoaded', () => {
+        const memoryBoard = document.getElementById('memory-board');
+        const movesDisplay = document.getElementById('moves');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const finalScoreMessage = document.getElementById('final-score-message');
+        
+        // 🚩 13가지 카드 앞면 이미지 목록 (13개 x 2 = 26장)
+        const cardImages = [
+            '스페이드2.png', '스페이드3.png', '스페이드4.png', '스페이드5.png', 
+            '스페이드9.png', '스페이드8.png', '스페이드7.png', '스페이드6.png',
+            '스페이드10.png','스페이드a.png','스페이드J.png','스페이드Q.png',
+            '스페이드K.png'
+        ];
+
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let moves = 0;
+
+        function createCards() {
+            const cardsArray = [...cardImages, ...cardImages];
             
-            // 🚩 13가지 카드 앞면 이미지 목록 (13개 x 2 = 26장)
-            const cardImages = [
-            	'스페이드2.png', '스페이드3.png', '스페이드4.png', '스페이드5.png', 
-                '스페이드9.png', '스페이드8.png', '스페이드7.png', '스페이드6.png',
-                '스페이드10.png','스페이드a.png','스페이드J.png','스페이드Q.png',
-                '스페이드K.png'
-            ];
-
-            let hasFlippedCard = false;
-            let lockBoard = false;
-            let firstCard, secondCard;
-            let moves = 0;
-
-            function createCards() {
-                const cardsArray = [...cardImages, ...cardImages];
-                
-                for (let i = cardsArray.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [cardsArray[i], cardsArray[j]] = [cardsArray[i], cardsArray[j]];
-                }
-                return cardsArray;
+            // Fisher-Yates 셔플 알고리즘
+            for (let i = cardsArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardsArray[i], cardsArray[j]] = [cardsArray[j], cardsArray[i]]; // 셔플 알고리즘 적용
             }
+            
+            return cardsArray; // 셔플된 카드 배열 반환
+        }
 
-            function generateBoard() {
-                memoryBoard.innerHTML = '';
-                const shuffledCards = createCards();
+        function generateBoard() {
+            memoryBoard.innerHTML = ''; // 기존 보드 내용 초기화
+            const shuffledCards = createCards(); // 셔플된 카드 배열 받아오기
 
-                shuffledCards.forEach(imageName => {
-                    const card = document.createElement('div');
-                    card.classList.add('memory-card');
-                    card.setAttribute('data-image', imageName);
+            shuffledCards.forEach(imageName => {
+                const card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.setAttribute('data-image', imageName);
 
-                    const frontFace = document.createElement('div');
-                    frontFace.classList.add('front-face');
-                    frontFace.style.backgroundImage = `url('memory_card_img/${imageName}')`;
-                    
-                    const backFace = document.createElement('div');
-                    backFace.classList.add('back-face');
-                    
-                    card.appendChild(frontFace);
-                    card.appendChild(backFace);
-                    
-                    card.addEventListener('click', flipCard); 
-
-                    memoryBoard.appendChild(card);
-                });
-            }
-
-            function flipCard() {
-                if (lockBoard) return;
-                if (this === firstCard) return;
-
-                this.classList.add('flip');
-
-                if (!hasFlippedCard) {
-                    hasFlippedCard = true;
-                    firstCard = this;
-                    return;
-                }
+                const frontFace = document.createElement('div');
+                frontFace.classList.add('front-face'); 
+                frontFace.style.backgroundImage = `url('memory_card_img/${imageName}')`; 
                 
-                secondCard = this;
-                moves++;
-                movesDisplay.textContent = moves;
-
-                checkForMatch();
-            }
-
-            function checkForMatch() {
-                let isMatch = firstCard.getAttribute('data-image') === secondCard.getAttribute('data-image');
+                const backFace = document.createElement('div');
+                backFace.classList.add('back-face');
                 
-                if (isMatch) {
-                    disableCards();
-                } else {
-                    unflipCards();
-                }
-            }
-
-            function disableCards() {
-                firstCard.removeEventListener('click', flipCard);
-                secondCard.removeEventListener('click', flipCard);
+                card.appendChild(frontFace);
+                card.appendChild(backFace);
                 
-                firstCard.classList.add('match');
-                secondCard.classList.add('match');
+                card.addEventListener('click', flipCard); 
 
+                memoryBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+            
+            secondCard = this;
+            moves++;
+            movesDisplay.textContent = moves;
+
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.getAttribute('data-image') === secondCard.getAttribute('data-image');
+            
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            
+            firstCard.classList.add('match');
+            secondCard.classList.add('match');
+
+            resetBoard();
+            checkWin();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
                 resetBoard();
-                checkWin();
-            }
+            }, 1000);
+        }
 
-            function unflipCards() {
-                lockBoard = true;
-
-                setTimeout(() => {
-                    firstCard.classList.remove('flip');
-                    secondCard.classList.remove('flip');
-                    resetBoard();
-                }, 1000);
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+        
+        function checkWin() {
+            // .match 클래스가 없는 카드(아직 짝을 못 맞춘 카드)의 개수가 0이면 승리
+            const remainingCards = document.querySelectorAll('.memory-card:not(.match)').length;
+            if (remainingCards === 0) {
+                showGameOverScreen(`축하합니다! ${moves}번 만에 모든 짝을 맞췄어요!`);
             }
-
-            function resetBoard() {
-                [hasFlippedCard, lockBoard] = [false, false];
-                [firstCard, secondCard] = [null, null];
-            }
+        }
+        
+        // 9. 게임 오버 화면 표시 함수 (스코어 전송 및 리다이렉션 수정)
+        function showGameOverScreen(message) {
+            const finalMoves = moves; 
+            finalScoreMessage.textContent = message;
             
-            function checkWin() {
-                const flippedCards = document.querySelectorAll('.memory-card:not(.match)').length;
-                if (flippedCards === 0) {
-                    showGameOverScreen(`축하합니다! ${moves}번 만에 모든 짝을 맞췄어요!`);
+            gameOverOverlay.classList.add('show');
+            
+            // ⭐️ 1. 스코어(moves)를 서버로 전송합니다. ⭐️
+            sendScoreToServer(finalMoves);
+            
+            // ⭐️ 2. 클릭 이벤트 리스너 추가 (클릭 시 점수를 URL에 담아 이동) ⭐️
+            gameOverOverlay.addEventListener('click', function nextPageHandler() {
+                
+                // 🚩 [핵심 수정] memory_gameover.html로 점수를 URL 파라미터로 전달
+                console.log(`➡️ memory_gameover.html?score=${finalMoves} 로 이동합니다.`);
+                window.location.href = `memory_gameover.html?score=${finalMoves}`; 
+
+                // 이벤트 리스너 제거
+                gameOverOverlay.removeEventListener('click', nextPageHandler); 
+            });
+            
+            memoryBoard.style.pointerEvents = 'none';
+        }
+        
+        // ⭐️ [신규 함수] 스코어를 서버에 전송하는 로직 ⭐️
+        function sendScoreToServer(scoreValue) {
+            const scoreSaveApiUrl = '/team_project/api/saveScore'; 
+            
+            fetch(scoreSaveApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    score: scoreValue 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { 
+                        console.error('스코어 저장 실패:', err.message);
+                        throw new Error('스코어 저장 실패: ' + (err.message || response.statusText));
+                    });
                 }
-            }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ 서버 응답 (스코어 저장):', data);
+            })
+            .catch(error => {
+                console.error('❌ 스코어 저장 중 오류 발생:', error);
+            });
+        }
+
+        function startGame() {
+            moves = 0;
+            movesDisplay.textContent = moves;
+            resetBoard();
+            generateBoard();
             
-            // 9. 게임 오버 화면 표시 함수 (스코어 전송 및 리다이렉션 수정)
-            function showGameOverScreen(message) {
-                const finalMoves = moves; 
-                finalScoreMessage.textContent = message;
-                
-                gameOverOverlay.classList.add('show');
-                
-                // ⭐️ 1. 스코어(moves)를 서버로 전송합니다. ⭐️
-                sendScoreToServer(finalMoves);
-                
-                // ⭐️ 2. 클릭 이벤트 리스너 추가 (클릭 시 점수를 URL에 담아 이동) ⭐️
-                gameOverOverlay.addEventListener('click', function nextPageHandler() {
-                    
-                    // 🚩 [핵심 수정] memory_score.html로 점수를 URL 파라미터로 전달
-                    console.log(`➡️ memory_gameover.html?score=${finalMoves} 로 이동합니다.`);
-                    window.location.href = `memory_gameover.html?score=${finalMoves}`; 
+            memoryBoard.style.pointerEvents = 'auto'; 
+        }
 
-                    // 이벤트 리스너 제거
-                    gameOverOverlay.removeEventListener('click', nextPageHandler); 
-                });
-                
-                memoryBoard.style.pointerEvents = 'none';
-            }
-            
-            // ⭐️ [신규 함수] 스코어를 서버에 전송하는 로직 ⭐️
-            function sendScoreToServer(scoreValue) {
-                const scoreSaveApiUrl = '/team_project/api/saveScore'; 
-                
-                fetch(scoreSaveApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify({
-                        score: scoreValue 
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { 
-                            console.error('스코어 저장 실패:', err.message);
-                            throw new Error('스코어 저장 실패: ' + (err.message || response.statusText));
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('✅ 서버 응답 (스코어 저장):', data);
-                })
-                .catch(error => {
-                    console.error('❌ 스코어 저장 중 오류 발생:', error);
-                });
-            }
-
-            function startGame() {
-                moves = 0;
-                movesDisplay.textContent = moves;
-                resetBoard();
-                generateBoard();
-                
-                memoryBoard.style.pointerEvents = 'auto'; 
-            }
-
-            startGame();
-        });
-    </script>
+        startGame();
+    });
+</script>
 </body>
 </html>
