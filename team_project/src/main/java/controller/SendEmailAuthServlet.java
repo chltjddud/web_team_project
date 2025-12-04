@@ -20,7 +20,7 @@ import jakarta.servlet.http.*;
 /**
  * 이메일로 6자리 인증번호를 전송하고 DB에 코드를 저장하는 서블릿입니다.
  */
-@WebServlet("/test/resister/sendCode")
+// @WebServlet("/test/resister/sendCode")
 public class SendEmailAuthServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;

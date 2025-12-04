@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpSession;
 
 import DB.DBUtil;
 
-@WebServlet("/api/saveScore")
+// @WebServlet("/api/saveScore")
 public class SaveScoreServlet extends HttpServlet {
     private static final long serialVersionUID = 1L; // 🐞 직렬화 경고 해결
     private static final int MEMORY_GAME_ID = 1; // ⚠️ 메모리 게임의 실제 game_id로 변경하세요.

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class DBUtil {
 
     // ⚠️ [필수] 아래 정보를 실제 Supabase 연결 정보로 변경해야 합니다.
-    private static final String DB_HOST = "db.wtemonhgawgmgpiqqfob.supabase.co:5432"; // 예: 'db.abcdefghijklmn.supabase.co'
+    private static final String DB_HOST = "db.wtemonhgawgmgpiqqfob.supabase.co"; // 예: 'db.abcdefghijklmn.supabase.co'
     private static final String DB_PORT = "5432";
     private static final String DB_NAME = "postgres"; // 기본 DB 이름
     

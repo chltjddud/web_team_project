@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // 경로 정상
-@WebServlet("/FindverifyCode") 
+// @WebServlet("/FindverifyCode") 
 public class FindVerifyCodeServlet extends HttpServlet {
     // ... (내부 로직은 이전과 동일) ...
     private static final long serialVersionUID = 1L;

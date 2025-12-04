@@ -16,7 +16,7 @@ import model.User; // ⭐️ User 모델 import 추가 ⭐️
  * ID/Password를 받아 로그인 인증을 처리하는 서블릿
  * 매핑 경로: /login
  */
-@WebServlet("/login") 
+// @WebServlet("/login") 
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

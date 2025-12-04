@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // 경로 정상
-@WebServlet("/findID") 
+// @WebServlet("/findID") 
 public class FindIdServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     

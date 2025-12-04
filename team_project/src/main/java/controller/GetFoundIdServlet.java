@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // ⭐️ 수정 1: 매핑 경로를 /getFoundId로 단순화 ⭐️
-@WebServlet("/getFoundId") 
+// @WebServlet("/getFoundId") 
 public class GetFoundIdServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

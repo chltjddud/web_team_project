@@ -34,7 +34,7 @@ class RankingEntry {
     public int getRank() { return rank; }
 }
 
-@WebServlet("/api/memoryRanking")
+// @WebServlet("/api/memoryRanking")
 public class MemoryRankingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L; // 🐞 직렬화 경고 해결
     private static final int MEMORY_GAME_ID = 3; 

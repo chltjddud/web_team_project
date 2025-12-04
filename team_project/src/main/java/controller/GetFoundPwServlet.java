@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // PW 찾기 결과 조회 서블릿
-@WebServlet("/getFoundPw")
+// @WebServlet("/getFoundPw")
 public class GetFoundPwServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

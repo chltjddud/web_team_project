@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // ⭐️ 매핑 경로: /findPW (수정 없음) ⭐️
-@WebServlet("/findPW") 
+// @WebServlet("/findPW") 
 public class FindPwServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     

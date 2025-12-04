@@ -15,7 +15,7 @@ import model.User;
  * AJAX 요청을 받아 세션 사용자 정보를 JSON으로 반환하는 API 서블릿
  * 매핑 경로: /api/userInfo
  */
-@WebServlet("/api/userInfo") 
+// @WebServlet("/api/userInfo") 
 public class UserInfoApiServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

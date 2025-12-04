@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 // ⭐️ 매핑 경로 수정: /FindPWverifyCode ⭐️
-@WebServlet("/FindPWverifyCode") 
+// @WebServlet("/FindPWverifyCode") 
 public class FindPwVerifyCodeServlet extends HttpServlet {
     
     private static final long serialVersionUID = 1L;

@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * 사용자 입력 인증 코드를 DB에 저장된 코드와 비교하여 유효성을 검증하는 서블릿입니다.
  * (HTML 폼에서 'email'과 'authCode'를 받습니다.)
  */
-@WebServlet("/test/resister/verifyCode")
+// @WebServlet("/test/resister/verifyCode")
 public class VerifyCodeServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

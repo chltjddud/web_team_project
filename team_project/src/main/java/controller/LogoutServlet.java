@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
  * 사용자 세션을 무효화(invalidate)하고 로그인 페이지로 리다이렉트하는 서블릿입니다.
  * 매핑 경로: /logout
  */
-@WebServlet("/logout") 
+// @WebServlet("/logout") 
 public class LogoutServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
