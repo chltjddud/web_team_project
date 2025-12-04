@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/checkDuplicate",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/sendCode",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/verifyCode",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/saveStep1",
+      "destination": "/server.js"
+    }
+  ],
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ]
+}
